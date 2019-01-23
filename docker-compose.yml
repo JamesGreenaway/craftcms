@@ -1,0 +1,40 @@
+version: '3'
+services: 
+  mysql:
+    image: mysql:5.7
+    restart: always
+    volumes: 
+      - mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    container_name: mysql
+  php-apache:
+    build: .
+    image: jamesgreenaway/php-apache:latest
+    depends_on: 
+      -  mysql
+    #env_file: 
+    #  - .env
+    environment: 
+      COMPOSER_PROJECT_NAME: craftcms
+      APACHE_DOCUMENT_ROOT: /var/www/html/web/
+    ports: 
+      - "5000:443"
+      - "8081:80"
+    volumes: 
+      - ./craft/:/var/www/html/
+    user: "${UID}:${GID}"
+    container_name: php-apache
+    #  theia: 
+    #    image: theiaide/theia:next
+    #    ports:
+    #      - "3000:3000"
+    #    volumes:
+    #      - .:/home/project:cached
+    #    user: root
+    #    container_name: theia-ide
+volumes: 
+  mysql: {}
