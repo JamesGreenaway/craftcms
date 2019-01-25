@@ -7,6 +7,7 @@ RUN apt-get install -y \
     libmagickwand-dev libzip-dev \
     net-tools iputils-ping \
     git unzip \
+    sudo \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl \
     && docker-php-ext-install zip \
@@ -42,29 +43,20 @@ COPY ssl/localdomain.insecure.key /etc/apache2/
 # SET SERVERNAME TO LOCALHOST
 RUN echo "ServerName penguin.linux.test" >> /etc/apache2/apache2.conf
 
+# SET AND PREPARE NEW USER 
+RUN useradd -m -s $(which bash) -G sudo,www-data craft
+
 # INSTALL COMPOSER
 RUN curl -sS https://getcomposer.org/installer -o composer-setup.php
 RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 RUN rm composer-setup.php
 
-# INSTALL CRAFT
-#RUN composer create-project craftcms/craft .
-
-# CONFIGURE PERMISSIONS
-#RUN chown -R 1001:www-data /var/www/html && chmod -R 750 /var/www/html
-#RUN chmod g+s /var/www/html
-#RUN chmod g+w -R /var/www/html
-#RUN chmod g+w -R \
-#/var/www/html/.env \
-#/var/www/html/composer.json \
-#/var/www/html/composer.lock \
-#/var/www/html/config \
-#/var/www/html/storage \
-#/var/www/html/vendor \
-#/var/www/html/web/cpresources
-
 # SET WORKING DIRECTORY
 WORKDIR /var/www/html/
+
+# SET PERMISSIONS
+#ARG UID=1000
+RUN chown -R $UID:www-data /var/www/html && chmod -R 750 /var/www/html && chmod g+s /var/www/html
 
 # EXPOSE PORTS
 EXPOSE 80 443

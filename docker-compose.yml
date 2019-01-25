@@ -26,7 +26,7 @@ services:
       - "8081:80"
     volumes: 
       - ./craft/:/var/www/html/
-    user: "${UID}:${GID}"
+    #user: "${UID}:${GID}"
     container_name: php-apache
     #  theia: 
     #    image: theiaide/theia:next
