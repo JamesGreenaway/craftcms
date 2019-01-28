@@ -44,7 +44,8 @@ COPY ssl/localdomain.insecure.key /etc/apache2/
 RUN echo "ServerName penguin.linux.test" >> /etc/apache2/apache2.conf
 
 # SET AND PREPARE NEW USER 
-RUN useradd -m -s $(which bash) -G sudo,www-data craft
+RUN useradd -m -s $(which bash) -G sudo,www-data -u 1000 craft
+RUN usermod -g www-data craft
 
 # INSTALL COMPOSER
 RUN curl -sS https://getcomposer.org/installer -o composer-setup.php
@@ -54,9 +55,6 @@ RUN rm composer-setup.php
 # SET WORKING DIRECTORY
 WORKDIR /var/www/html/
 
-# SET PERMISSIONS
-#ARG UID=1000
-RUN chown -R $UID:www-data /var/www/html && chmod -R 750 /var/www/html && chmod g+s /var/www/html
-
 # EXPOSE PORTS
 EXPOSE 80 443
+

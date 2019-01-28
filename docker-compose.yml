@@ -12,12 +12,11 @@ services:
       MYSQL_PASSWORD: password
     container_name: mysql
   php-apache:
-    build: .
+    build:
+      context: .
     image: jamesgreenaway/php-apache:latest
     depends_on: 
       -  mysql
-    #env_file: 
-    #  - .env
     environment: 
       COMPOSER_PROJECT_NAME: craftcms
       APACHE_DOCUMENT_ROOT: /var/www/html/web/
@@ -26,7 +25,6 @@ services:
       - "8081:80"
     volumes: 
       - ./craft/:/var/www/html/
-    #user: "${UID}:${GID}"
     container_name: php-apache
     #  theia: 
     #    image: theiaide/theia:next
