@@ -52,8 +52,15 @@ RUN curl -sS https://getcomposer.org/installer -o composer-setup.php
 RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 RUN rm composer-setup.php
 
+# COPY PERMISSIONS SCRIPT
+COPY ./config/set-permissions /usr/local/bin
+COPY ./config/startup /usr/local/bin
+
 # SET WORKING DIRECTORY
 WORKDIR /var/www/html/
+
+# RUN STARTUP SCRIPT
+CMD ["startup"]
 
 # EXPOSE PORTS
 EXPOSE 80 443

@@ -10,7 +10,7 @@ services:
       MYSQL_DATABASE: db
       MYSQL_USER: user
       MYSQL_PASSWORD: password
-    container_name: mysql
+      container_name: mysql
   php-apache:
     build:
       context: .
@@ -18,7 +18,6 @@ services:
     depends_on: 
       -  mysql
     environment: 
-      COMPOSER_PROJECT_NAME: craftcms
       APACHE_DOCUMENT_ROOT: /var/www/html/web/
     ports: 
       - "5000:443"
