@@ -31,9 +31,9 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 RUN a2enmod ssl && a2enmod rewrite
 
 # OVERRIDE VIRTUALHOSTS
-COPY apache/httpd-ssl.conf /etc/apache2/conf/extra/httpd-ssl.conf
-COPY apache/000-default.conf /etc/apache2/sites-available
-COPY apache/default-ssl.conf /etc/apache2/sites-available
+COPY config/httpd-ssl.conf /etc/apache2/conf/extra/httpd-ssl.conf
+COPY config/000-default.conf /etc/apache2/sites-available
+COPY config/default-ssl.conf /etc/apache2/sites-available
 RUN a2ensite 000-default.conf && a2ensite default-ssl.conf
 
 # SET SERVERNAME TO LOCALHOST
@@ -46,8 +46,8 @@ RUN usermod -g www-data craft
 
 # SET SSL KEY
 ARG SITE_NAME
-COPY apache/localdomain.csr.cnf /etc/apache2/
-COPY apache/localdomain.v3.ext /etc/apache2/
+COPY config/localdomain.csr.cnf /etc/apache2/
+COPY config/localdomain.v3.ext /etc/apache2/
 RUN cd /etc/apache2/ && \
 openssl genrsa -des3 -passout pass:password -out localdomain.secure.key 2048 && echo "password" | openssl rsa -in localdomain.secure.key -out localdomain.insecure.key -passin stdin && \
 openssl req -new -sha256 -nodes -out localdomain.csr -key localdomain.insecure.key -config localdomain.csr.cnf && \

@@ -16,7 +16,7 @@ services:
       context: .
       args:
         UID: 1000
-        SITE_NAME: ZCraft
+        SITE_NAME: Craft
     image: jamesgreenaway/php-apache:latest
     restart: unless-stopped
     depends_on: 
