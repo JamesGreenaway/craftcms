@@ -1,5 +1,5 @@
 #! /bin/bash
-
+rm /var/www/html/.gitkeep
 data=$( stat -c %s .)
 if [ $data -eq 0 ]; then
     sudo -H -u craft bash -c 'composer create-project craftcms/craft .'
