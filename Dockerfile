@@ -48,13 +48,15 @@ RUN usermod -g www-data craft
 ARG SITE_NAME
 COPY config/localdomain.csr.cnf /etc/apache2/
 COPY config/localdomain.v3.ext /etc/apache2/
-RUN cd /etc/apache2/ && \
-openssl genrsa -des3 -passout pass:password -out localdomain.secure.key 2048 && echo "password" | openssl rsa -in localdomain.secure.key -out localdomain.insecure.key -passin stdin && \
+RUN ["/bin/bash", "-c",  "cd /etc/apache2/ && \
+openssl genrsa -des3 -passout pass:password -out localdomain.secure.key 2048 &> /dev/null && \
+echo \"password\" |openssl rsa -in localdomain.secure.key -out localdomain.insecure.key -passin stdin &> /dev/null && \
 openssl req -new -sha256 -nodes -out localdomain.csr -key localdomain.insecure.key -config localdomain.csr.cnf && \
-openssl genrsa -des3 -passout pass:password -out rootca.secure.key 2048 && echo "password" | openssl rsa -in rootca.secure.key -out rootca.insecure.key -passin stdin && \
-openssl req -new -x509 -nodes -key rootca.insecure.key -sha256 -out cacert.pem -days 3650 -subj "/C=GB/ST=London/L=London/O=Localhost/OU=IT Department/CN=${SITE_NAME}" && \
-openssl x509 -req -in localdomain.csr -CA cacert.pem -CAkey rootca.insecure.key -CAcreateserial -out localdomain.crt -days 500 -sha256 -extfile localdomain.v3.ext && \
-rm cacert.srl localdomain.csr localdomain.secure.key rootca.secure.key rootca.insecure.key localdomain.csr.cnf localdomain.v3.ext 
+openssl genrsa -des3 -passout pass:password -out rootca.secure.key 2048 &> /dev/null && \
+echo \"password\" | openssl rsa -in rootca.secure.key -out rootca.insecure.key -passin stdin &> /dev/null && \
+openssl req -new -x509 -nodes -key rootca.insecure.key -sha256 -out cacert.pem -days 3650 -subj \"/C=GB/ST=London/L=London/O=localhost/OU=IT Department/CN=${SITE_NAME}\" && \
+openssl x509 -req -in localdomain.csr -CA cacert.pem -CAkey rootca.insecure.key -CAcreateserial -out localdomain.crt -days 500 -sha256 -extfile localdomain.v3.ext &> /dev/null && \
+rm cacert.srl localdomain.csr localdomain.secure.key rootca.*"]
 
 # INSTALL COMPOSER
 RUN curl -sS https://getcomposer.org/installer -o composer-setup.php
