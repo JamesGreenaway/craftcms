@@ -18,7 +18,7 @@ RUN apt-get install -y \
 # SET MEMORY LIMIT 
 RUN echo 'memory_limit = 256M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini;
 #               ***PRODUCTION CONFIGURATION***
-# STRONGLY RECOMMENDED: disable logs and assertion compilation 
+#STRONGLY RECOMMENDED: disable logs and assertion compilation 
 #RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 #               ******************************
 
