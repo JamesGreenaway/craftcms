@@ -12,7 +12,7 @@ services:
       MYSQL_PASSWORD: password
     container_name: mysql
   craft:
-    image: jamesgreenaway/crafcms:1.0
+    image: jamesgreenaway/craftcms:latest
     restart: unless-stopped
     depends_on: 
       - mysql
