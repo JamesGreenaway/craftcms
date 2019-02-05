@@ -17,14 +17,15 @@ services:
     depends_on: 
       - mysql
     environment: 
-      - APACHE_DOCUMENT_ROOT=/var/www/html/web
-      - UID=1000
-      - SITE_NAME=Craft
+      APACHE_DOCUMENT_ROOT: /var/www/html/web
+      LOCAL_UID: 1000
+      SITE_NAME: Craft
     ports: 
       - "5000:443"
       - "8080:80"
     volumes: 
       - ./craft:/var/www/html/
+      - ./ssl:/home/craft/.ssl
     container_name: craft
 volumes: 
   mysql: {}
