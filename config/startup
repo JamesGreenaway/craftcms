@@ -1,31 +1,38 @@
 #! /bin/bash
-export LOCAL_UID="${LOCAL_UID:-1000}"
+set -e
+    export LOCAL_UID="${LOCAL_UID:-1000}"
+    useradd -m -s $(which bash) -G sudo,www-data -u ${LOCAL_UID} craft
+    usermod -g www-data craft
 
-useradd -m -s $(which bash) -G sudo,www-data -u ${LOCAL_UID} craft
-usermod -g www-data craft
-
-export SITE_NAME="${SITE_NAME:-Testing}"
-
-cd /etc/apache2/ && \
-openssl genrsa -des3 -passout pass:password -out localdomain.secure.key 2048 &> /dev/null && \
-echo \"password\" |openssl rsa -in localdomain.secure.key -out localdomain.insecure.key -passin stdin &> /dev/null && \
-openssl req -new -sha256 -nodes -out localdomain.csr -key localdomain.insecure.key -config localdomain.csr.cnf && \
-openssl genrsa -des3 -passout pass:password -out rootca.secure.key 2048 &> /dev/null && \
-echo \"password\" | openssl rsa -in rootca.secure.key -out rootca.insecure.key -passin stdin &> /dev/null && \
-openssl req -new -x509 -nodes -key rootca.insecure.key -sha256 -out cacert.pem -days 3650 -subj \"/C=GB/ST=London/L=London/O=localhost/OU=IT Department/CN=${SITE_NAME}\" && \
-openssl x509 -req -in localdomain.csr -CA cacert.pem -CAkey rootca.insecure.key -CAcreateserial -out localdomain.crt -days 500 -sha256 -extfile localdomain.v3.ext &> /dev/null && \
-rm cacert.srl localdomain.csr localdomain.secure.key rootca.*
-
-rm /var/www/html/.gitkeep
+rm -f /var/www/html/.gitkeep
+cd /var/www/html
 data=$( stat -c %s .)
 if [ $data -eq 0 ]; then
     sudo -H -u craft bash -c 'composer create-project craftcms/craft .'
     chmod -R g+w config web storage vendor .env composer.json composer.lock
-    mv /etc/apache2/cacert.pem /var/www/html
-    chown craft:craft /var/www/html/cacert.pem
 else
-    echo 'Craft project already added!'
-    mv /etc/apache2/cacert.pem /var/www/html
-    chown craft:craft /var/www/html/cacert.pem
+    echo '- Craft project already added'
 fi
+
+export SITE_NAME="${SITE_NAME:-Testing}"
+html=( `find /home/craft/.ssl -maxdepth 1 -name "cacert.pem"`)
+if [ ${#html[@]} -gt 0 ]; then
+    echo "- SSL already generated"
+    cp /home/craft/.ssl/localdomain.crt /home/craft/.ssl/localdomain.insecure.key /etc/apache2/
+    chgrp 1000 -R /home/craft/.ssl
+else
+    cd /etc/apache2/ && \
+    openssl genrsa -des3 -passout pass:password -out localdomain.secure.key 2048  && \
+    echo "password" |openssl rsa -in localdomain.secure.key -out localdomain.insecure.key -passin stdin  && \
+    openssl req -new -sha256 -nodes -out localdomain.csr -key localdomain.insecure.key -config localdomain.csr.cnf && \
+    openssl genrsa -des3 -passout pass:password -out rootca.secure.key 2048  && \
+    echo "password" | openssl rsa -in rootca.secure.key -out rootca.insecure.key -passin stdin  && \
+    openssl req -new -x509 -nodes -key rootca.insecure.key -sha256 -out cacert.pem -days 3650 -subj "/C=GB/ST=London/L=London/O=localhost/OU=IT Department/CN=${SITE_NAME}"  && \
+    openssl x509 -req -in localdomain.csr -CA cacert.pem -CAkey rootca.insecure.key -CAcreateserial -out localdomain.crt -days 500 -sha256 -extfile localdomain.v3.ext
+    chown 1000:1000 /home/craft/.ssl
+    mv /etc/apache2/cacert.pem /home/craft/.ssl
+    cp /etc/apache2/localdomain.crt /etc/apache2/localdomain.insecure.key /home/craft/.ssl
+    chown 1000:1000 -R /home/craft/.ssl
+fi
+
 apache2-foreground
