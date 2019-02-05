@@ -5,8 +5,10 @@ if [ $data -eq 0 ]; then
     sudo -H -u craft bash -c 'composer create-project craftcms/craft .'
     chmod -R g+w config web storage vendor .env composer.json composer.lock
     mv /etc/apache2/cacert.pem /var/www/html
+    chown craft:craft /var/www/html/cacert.pem
 else
     echo 'Craft project already added!'
     mv /etc/apache2/cacert.pem /var/www/html
+    chown craft:craft /var/www/html/cacert.pem
 fi
 apache2-foreground
