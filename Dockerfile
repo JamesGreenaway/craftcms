@@ -40,12 +40,12 @@ RUN a2ensite 000-default.conf && a2ensite default-ssl.conf
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # SET AND PREPARE NEW USER 
-ARG UID=1000
+ENV UID=1000
 RUN useradd -m -s $(which bash) -G sudo,www-data -u ${UID} craft
 RUN usermod -g www-data craft
 
 # SET SSL KEY
-ARG SITE_NAME=Testing
+ENV SITE_NAME=Testing
 COPY config/localdomain.csr.cnf /etc/apache2/
 COPY config/localdomain.v3.ext /etc/apache2/
 RUN ["/bin/bash", "-c",  "cd /etc/apache2/ && \

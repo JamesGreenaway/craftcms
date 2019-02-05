@@ -12,17 +12,16 @@ services:
       MYSQL_PASSWORD: password
     container_name: mysql
   craft:
+    image: jamesgreenaway/craftcms
     build:
       context: .
-      args:
-        UID: 1000
-        SITE_NAME: Craft
-    image: jamesgreenaway/crafcms:1.0
     restart: unless-stopped
     depends_on: 
       - mysql
     environment: 
       - APACHE_DOCUMENT_ROOT=/var/www/html/web
+      - UID=1000
+      - SITE_NAME=Craft
     ports: 
       - "5000:443"
       - "8080:80"
