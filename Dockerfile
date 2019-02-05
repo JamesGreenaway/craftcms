@@ -40,7 +40,7 @@ RUN a2ensite 000-default.conf && a2ensite default-ssl.conf
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # SET AND PREPARE NEW USER 
-ARG UID
+ARG UID=1000
 RUN useradd -m -s $(which bash) -G sudo,www-data -u ${UID} craft
 RUN usermod -g www-data craft
 
