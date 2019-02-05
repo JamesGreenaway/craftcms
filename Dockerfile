@@ -45,7 +45,7 @@ RUN useradd -m -s $(which bash) -G sudo,www-data -u ${UID} craft
 RUN usermod -g www-data craft
 
 # SET SSL KEY
-ARG SITE_NAME
+ARG SITE_NAME=Testing
 COPY config/localdomain.csr.cnf /etc/apache2/
 COPY config/localdomain.v3.ext /etc/apache2/
 RUN ["/bin/bash", "-c",  "cd /etc/apache2/ && \
