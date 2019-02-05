@@ -14,10 +14,10 @@ services:
   php-apache:
     build:
       context: .
-    image: jamesgreenaway/crafcms:1.0
       args:
         UID: 1000
         SITE_NAME: Craft
+    image: jamesgreenaway/crafcms:1.0
     restart: unless-stopped
     depends_on: 
       - mysql
