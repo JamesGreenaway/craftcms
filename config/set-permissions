@@ -1,3 +1,0 @@
-#! /bin/bash
-chmod -R g+w config web storage vendor .env composer.json composer.lock
-

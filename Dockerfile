@@ -36,16 +36,25 @@ COPY apache/000-default.conf /etc/apache2/sites-available
 COPY apache/default-ssl.conf /etc/apache2/sites-available
 RUN a2ensite 000-default.conf && a2ensite default-ssl.conf
 
-# SET SSL KEY
-COPY ssl/localdomain.crt /etc/apache2/
-COPY ssl/localdomain.insecure.key /etc/apache2/
-
 # SET SERVERNAME TO LOCALHOST
-RUN echo "ServerName penguin.linux.test" >> /etc/apache2/apache2.conf
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # SET AND PREPARE NEW USER 
-RUN useradd -m -s $(which bash) -G sudo,www-data -u 1000 craft
+ARG UID
+RUN useradd -m -s $(which bash) -G sudo,www-data -u ${UID} craft
 RUN usermod -g www-data craft
+
+# SET SSL KEY
+ARG SITE_NAME
+COPY apache/localdomain.csr.cnf /etc/apache2/
+COPY apache/localdomain.v3.ext /etc/apache2/
+RUN cd /etc/apache2/ && \
+openssl genrsa -des3 -passout pass:password -out localdomain.secure.key 2048 && echo "password" | openssl rsa -in localdomain.secure.key -out localdomain.insecure.key -passin stdin && \
+openssl req -new -sha256 -nodes -out localdomain.csr -key localdomain.insecure.key -config localdomain.csr.cnf && \
+openssl genrsa -des3 -passout pass:password -out rootca.secure.key 2048 && echo "password" | openssl rsa -in rootca.secure.key -out rootca.insecure.key -passin stdin && \
+openssl req -new -x509 -nodes -key rootca.insecure.key -sha256 -out cacert.pem -days 3650 -subj "/C=GB/ST=London/L=London/O=Localhost/OU=IT Department/CN=${SITE_NAME}" && \
+openssl x509 -req -in localdomain.csr -CA cacert.pem -CAkey rootca.insecure.key -CAcreateserial -out localdomain.crt -days 500 -sha256 -extfile localdomain.v3.ext && \
+rm cacert.srl localdomain.csr localdomain.secure.key rootca.secure.key rootca.insecure.key localdomain.csr.cnf localdomain.v3.ext
 
 # INSTALL COMPOSER
 RUN curl -sS https://getcomposer.org/installer -o composer-setup.php
@@ -53,7 +62,6 @@ RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 RUN rm composer-setup.php
 
 # COPY PERMISSIONS SCRIPT
-COPY ./config/set-permissions /usr/local/bin
 COPY ./config/startup /usr/local/bin
 
 # SET WORKING DIRECTORY

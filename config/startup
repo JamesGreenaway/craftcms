@@ -1,3 +1,12 @@
 #! /bin/bash
-echo hello
+
+data=$( stat -c %s .)
+if [ $data -eq 0 ]; then
+    sudo -H -u craft bash -c 'composer create-project craftcms/craft .'
+    chmod -R g+w config web storage vendor .env composer.json composer.lock
+    mv /etc/apache2/cacert.pem /var/www/html
+else
+    echo 'Craft project already added!'
+    mv /etc/apache2/cacert.pem /var/www/html
+fi
 apache2-foreground

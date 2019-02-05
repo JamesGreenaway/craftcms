@@ -2,7 +2,7 @@ version: '3'
 services: 
   mysql:
     image: mysql:5.7
-    restart: always
+    restart: unless-stopped
     volumes: 
       - mysql:/var/lib/mysql
     environment:
@@ -10,28 +10,24 @@ services:
       MYSQL_DATABASE: db
       MYSQL_USER: user
       MYSQL_PASSWORD: password
-      container_name: mysql
+    container_name: mysql
   php-apache:
     build:
       context: .
+      args:
+        UID: 1000
+        SITE_NAME: ZCraft
     image: jamesgreenaway/php-apache:latest
+    restart: unless-stopped
     depends_on: 
       -  mysql
     environment: 
-      APACHE_DOCUMENT_ROOT: /var/www/html/web/
+      - APACHE_DOCUMENT_ROOT=/var/www/html/web
     ports: 
       - "5000:443"
-      - "8081:80"
+      - "8080:80"
     volumes: 
-      - ./craft/:/var/www/html/
-    container_name: php-apache
-    #  theia: 
-    #    image: theiaide/theia:next
-    #    ports:
-    #      - "3000:3000"
-    #    volumes:
-    #      - .:/home/project:cached
-    #    user: root
-    #    container_name: theia-ide
+      - ./craft:/var/www/html/
+    container_name: craft
 volumes: 
   mysql: {}
