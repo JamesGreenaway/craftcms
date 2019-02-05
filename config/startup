@@ -1,4 +1,21 @@
 #! /bin/bash
+export LOCAL_UID="${LOCAL_UID:-1000}"
+
+useradd -m -s $(which bash) -G sudo,www-data -u ${LOCAL_UID} craft
+usermod -g www-data craft
+
+export SITE_NAME="${SITE_NAME:-Testing}"
+
+cd /etc/apache2/ && \
+openssl genrsa -des3 -passout pass:password -out localdomain.secure.key 2048 &> /dev/null && \
+echo \"password\" |openssl rsa -in localdomain.secure.key -out localdomain.insecure.key -passin stdin &> /dev/null && \
+openssl req -new -sha256 -nodes -out localdomain.csr -key localdomain.insecure.key -config localdomain.csr.cnf && \
+openssl genrsa -des3 -passout pass:password -out rootca.secure.key 2048 &> /dev/null && \
+echo \"password\" | openssl rsa -in rootca.secure.key -out rootca.insecure.key -passin stdin &> /dev/null && \
+openssl req -new -x509 -nodes -key rootca.insecure.key -sha256 -out cacert.pem -days 3650 -subj \"/C=GB/ST=London/L=London/O=localhost/OU=IT Department/CN=${SITE_NAME}\" && \
+openssl x509 -req -in localdomain.csr -CA cacert.pem -CAkey rootca.insecure.key -CAcreateserial -out localdomain.crt -days 500 -sha256 -extfile localdomain.v3.ext &> /dev/null && \
+rm cacert.srl localdomain.csr localdomain.secure.key rootca.*
+
 rm /var/www/html/.gitkeep
 data=$( stat -c %s .)
 if [ $data -eq 0 ]; then

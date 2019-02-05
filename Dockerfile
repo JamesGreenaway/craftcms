@@ -40,23 +40,23 @@ RUN a2ensite 000-default.conf && a2ensite default-ssl.conf
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # SET AND PREPARE NEW USER 
-ENV UID=1000
-RUN useradd -m -s $(which bash) -G sudo,www-data -u ${UID} craft
-RUN usermod -g www-data craft
+#ENV UID=1000
+#RUN useradd -m -s $(which bash) -G sudo,www-data -u ${UID} craft
+#RUN usermod -g www-data craft
 
 # SET SSL KEY
-ENV SITE_NAME=Testing
+#ENV SITE_NAME=Testing
 COPY config/localdomain.csr.cnf /etc/apache2/
 COPY config/localdomain.v3.ext /etc/apache2/
-RUN ["/bin/bash", "-c",  "cd /etc/apache2/ && \
-openssl genrsa -des3 -passout pass:password -out localdomain.secure.key 2048 &> /dev/null && \
-echo \"password\" |openssl rsa -in localdomain.secure.key -out localdomain.insecure.key -passin stdin &> /dev/null && \
-openssl req -new -sha256 -nodes -out localdomain.csr -key localdomain.insecure.key -config localdomain.csr.cnf && \
-openssl genrsa -des3 -passout pass:password -out rootca.secure.key 2048 &> /dev/null && \
-echo \"password\" | openssl rsa -in rootca.secure.key -out rootca.insecure.key -passin stdin &> /dev/null && \
-openssl req -new -x509 -nodes -key rootca.insecure.key -sha256 -out cacert.pem -days 3650 -subj \"/C=GB/ST=London/L=London/O=localhost/OU=IT Department/CN=${SITE_NAME}\" && \
-openssl x509 -req -in localdomain.csr -CA cacert.pem -CAkey rootca.insecure.key -CAcreateserial -out localdomain.crt -days 500 -sha256 -extfile localdomain.v3.ext &> /dev/null && \
-rm cacert.srl localdomain.csr localdomain.secure.key rootca.*"]
+#RUN ["/bin/bash", "-c",  "cd /etc/apache2/ && \
+#openssl genrsa -des3 -passout pass:password -out localdomain.secure.key 2048 &> /dev/null && \
+#echo \"password\" |openssl rsa -in localdomain.secure.key -out localdomain.insecure.key -passin stdin &> /dev/null && \
+#openssl req -new -sha256 -nodes -out localdomain.csr -key localdomain.insecure.key -config localdomain.csr.cnf && \
+#openssl genrsa -des3 -passout pass:password -out rootca.secure.key 2048 &> /dev/null && \
+#echo \"password\" | openssl rsa -in rootca.secure.key -out rootca.insecure.key -passin stdin &> /dev/null && \
+#openssl req -new -x509 -nodes -key rootca.insecure.key -sha256 -out cacert.pem -days 3650 -subj \"/C=GB/ST=London/L=London/O=localhost/OU=IT Department/CN=${SITE_NAME}\" && \
+#openssl x509 -req -in localdomain.csr -CA cacert.pem -CAkey rootca.insecure.key -CAcreateserial -out localdomain.crt -days 500 -sha256 -extfile localdomain.v3.ext &> /dev/null && \
+#rm cacert.srl localdomain.csr localdomain.secure.key rootca.*"]
 
 # INSTALL COMPOSER
 RUN curl -sS https://getcomposer.org/installer -o composer-setup.php
