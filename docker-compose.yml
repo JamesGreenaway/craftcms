@@ -11,7 +11,7 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     container_name: mysql
-  php-apache:
+  craft:
     build:
       context: .
       args:
