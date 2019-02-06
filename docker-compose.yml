@@ -10,7 +10,6 @@ services:
       MYSQL_DATABASE: db
       MYSQL_USER: user
       MYSQL_PASSWORD: password
-    container_name: mysql
   craft:
     image: jamesgreenaway/craftcms:latest
     restart: unless-stopped
@@ -26,6 +25,5 @@ services:
     volumes: 
       - ./craft:/var/www/html/
       - ./ssl:/home/craft/.ssl
-    container_name: craft
 volumes: 
   mysql: {}
