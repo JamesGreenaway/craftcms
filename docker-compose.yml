@@ -26,6 +26,6 @@ services:
       - "8080:80"
     volumes: 
       - ./craft:/var/www/html/
-      - ./ssl:/home/craft/.ssl
+      - ./ssl:/.ssl
 volumes: 
   mysql: {}

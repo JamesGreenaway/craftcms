@@ -1,8 +1,13 @@
 #! /bin/bash
 set -e
+user_exists=$(id -u craft > /dev/null 2>&1; echo $?)
+if [ ${user_exists} -eq 1 ]; then
     export LOCAL_UID="${LOCAL_UID:-1000}"
     useradd -m -s $(which bash) -G sudo,www-data -u ${LOCAL_UID} craft
     usermod -g www-data craft
+else
+    echo '- User already created'
+fi
 
 rm -f /var/www/html/.gitkeep
 cd /var/www/html
@@ -15,11 +20,11 @@ else
 fi
 
 export SITE_NAME="${SITE_NAME:-Testing}"
-html=( `find /home/craft/.ssl -maxdepth 1 -name "cacert.pem"`)
+html=( `find /.ssl -maxdepth 1 -name "cacert.pem"`)
 if [ ${#html[@]} -gt 0 ]; then
     echo "- SSL already generated"
-    cp /home/craft/.ssl/localdomain.crt /home/craft/.ssl/localdomain.insecure.key /etc/apache2/
-    chgrp 1000 -R /home/craft/.ssl
+    cp /.ssl/localdomain.crt /.ssl/localdomain.insecure.key /etc/apache2/
+    chgrp 1000 -R /.ssl
 else
     cd /etc/apache2/ && \
     openssl genrsa -des3 -passout pass:password -out localdomain.secure.key 2048  && \
@@ -29,10 +34,10 @@ else
     echo "password" | openssl rsa -in rootca.secure.key -out rootca.insecure.key -passin stdin  && \
     openssl req -new -x509 -nodes -key rootca.insecure.key -sha256 -out cacert.pem -days 3650 -subj "/C=GB/ST=London/L=London/O=localhost/OU=IT Department/CN=${SITE_NAME}"  && \
     openssl x509 -req -in localdomain.csr -CA cacert.pem -CAkey rootca.insecure.key -CAcreateserial -out localdomain.crt -days 500 -sha256 -extfile localdomain.v3.ext
-    chown 1000:1000 /home/craft/.ssl
-    mv /etc/apache2/cacert.pem /home/craft/.ssl
-    cp /etc/apache2/localdomain.crt /etc/apache2/localdomain.insecure.key /home/craft/.ssl
-    chown 1000:1000 -R /home/craft/.ssl
+    chown 1000:1000 /.ssl
+    mv /etc/apache2/cacert.pem /.ssl
+    cp /etc/apache2/localdomain.crt /etc/apache2/localdomain.insecure.key /.ssl
+    chown 1000:1000 -R /.ssl
 fi
 
 apache2-foreground
