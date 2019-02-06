@@ -3,8 +3,7 @@ set -e
 user_exists=$(id -u craft > /dev/null 2>&1; echo $?)
 if [ ${user_exists} -eq 1 ]; then
     export LOCAL_UID="${LOCAL_UID:-1000}"
-    useradd -m -s $(which bash) -G sudo,www-data -u ${LOCAL_UID} craft
-    usermod -g www-data craft
+    useradd -m -s $(which bash) -G sudo -u ${LOCAL_UID} craft
 else
     echo '- User already created'
 fi
