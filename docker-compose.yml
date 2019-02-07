@@ -18,11 +18,11 @@ services:
     depends_on: 
       - mysql
     environment: 
-      APACHE_DOCUMENT_ROOT: /var/www/html/web
       LOCAL_UID: 1000
       SITE_NAME: Craft
       APACHE_RUN_USER: craft
       APACHE_RUN_GROUP: craft
+      APACHE_DOCUMENT_ROOT: /var/www/html/web
     ports: 
       - "5000:443"
       - "8080:80"
