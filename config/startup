@@ -19,7 +19,7 @@ else
     chmod -R g+w config web storage vendor .env composer.json composer.lock
 fi
 
-export SITE_NAME="${SITE_NAME:-Testing}"
+export SSL_SITE_NAME="${SSL_SITE_NAME:-Testing}"
 html=( `find /var/www/html -maxdepth 1 -name "ssl"`)
 if [ ${#html[@]} -gt 0 ]; then
     echo "- SSL already generated"
@@ -31,7 +31,7 @@ else
     openssl req -new -sha256 -nodes -out localdomain.csr -key localdomain.insecure.key -config localdomain.csr.cnf && \
     openssl genrsa -des3 -passout pass:password -out rootca.secure.key 2048  && \
     echo "password" | openssl rsa -in rootca.secure.key -out rootca.insecure.key -passin stdin  && \
-    openssl req -new -x509 -nodes -key rootca.insecure.key -sha256 -out cacert.pem -days 3650 -subj "/C=GB/ST=London/L=London/O=localhost/OU=IT Department/CN=${SITE_NAME}"  && \
+    openssl req -new -x509 -nodes -key rootca.insecure.key -sha256 -out cacert.pem -days 3650 -subj "/C=GB/ST=London/L=London/O=localhost/OU=IT Department/CN=${SSL_SITE_NAME}"  && \
     openssl x509 -req -in localdomain.csr -CA cacert.pem -CAkey rootca.insecure.key -CAcreateserial -out localdomain.crt -days 500 -sha256 -extfile localdomain.v3.ext
     mkdir /var/www/html/ssl
     chown craft:craft -R /var/www/html/ssl
@@ -39,6 +39,10 @@ else
     cp /etc/apache2/localdomain.crt /etc/apache2/localdomain.insecure.key /var/www/html/ssl
     chown craft:craft -R /var/www/html/ssl
 fi
+
+export APACHE_RUN_USER=craft
+export APACHE_RUN_GROUP=craft
+export APACHE_DOCUMENT_ROOT=/var/www/html/web
 
 apache2-foreground
 
