@@ -41,14 +41,14 @@ volumes:
 1. Run ```$ docker-compose up```.
 
 1. Add self-certified SSL certificate to browsers certificate manager: 
-For macOS users:
+>For macOS users:
 * Double-click ```website/craft/ssl/cacert/pem``` to open the certificate in the Keychain Access utility
 * Double-click the certificate
 * Click the arrow next to Trust
 * Change the "When using this certificate" field to "Always Trust" and close the window
 * Enter password to confirm
     
-For Chromebook (Crostini) users:
+>For Chromebook (Crostini) users:
 * Go to ```chrome://certificate-manager/```
 * Click "Authorities" then "IMPORT"
 * Select ```website/craft/ssl/cacert.pem```
