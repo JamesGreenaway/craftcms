@@ -1,6 +1,6 @@
 ### Introduction
 This docker image extends the official PHP / Apache build to include CraftCMS, MySQL and SSL Certification.
-Currently only suitable for local use. Compatible with Linux, macOS and Chromebook (Crostini).
+Currently only suitable for local use. Compatible with macOS, Linux and Chromebook (Crostini).
 
 ## How to use
 
