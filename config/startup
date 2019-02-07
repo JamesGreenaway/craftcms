@@ -1,0 +1,43 @@
+#! /bin/bash
+set -e
+user_exists=$(id -u craft > /dev/null 2>&1; echo $?)
+if [ ${user_exists} -eq 1 ]; then
+    export LOCAL_UID="${LOCAL_UID:-1000}"
+    useradd -m -s $(which bash) -u ${LOCAL_UID} craft
+else
+    echo '- User already created'
+fi
+
+chown craft:craft /var/www/html
+
+cd /var/www/html
+data=$( stat -c %s .)
+if [ $data -eq 0 ]; then
+    sudo -H -u craft bash -c 'composer create-project craftcms/craft .'
+    chmod -R g+w config web storage vendor .env composer.json composer.lock
+else
+    echo '- Craft project already added'
+fi
+
+export SITE_NAME="${SITE_NAME:-Testing}"
+html=( `find /var/www/html -maxdepth 1 -name "ssl"`)
+if [ ${#html[@]} -gt 0 ]; then
+    echo "- SSL already generated"
+    cp /var/www/html/ssl/localdomain.crt /var/www/html/ssl/localdomain.insecure.key /etc/apache2/
+else
+    cd /etc/apache2/ && \
+    openssl genrsa -des3 -passout pass:password -out localdomain.secure.key 2048  && \
+    echo "password" |openssl rsa -in localdomain.secure.key -out localdomain.insecure.key -passin stdin  && \
+    openssl req -new -sha256 -nodes -out localdomain.csr -key localdomain.insecure.key -config localdomain.csr.cnf && \
+    openssl genrsa -des3 -passout pass:password -out rootca.secure.key 2048  && \
+    echo "password" | openssl rsa -in rootca.secure.key -out rootca.insecure.key -passin stdin  && \
+    openssl req -new -x509 -nodes -key rootca.insecure.key -sha256 -out cacert.pem -days 3650 -subj "/C=GB/ST=London/L=London/O=localhost/OU=IT Department/CN=${SITE_NAME}"  && \
+    openssl x509 -req -in localdomain.csr -CA cacert.pem -CAkey rootca.insecure.key -CAcreateserial -out localdomain.crt -days 500 -sha256 -extfile localdomain.v3.ext
+    mkdir /var/www/html/ssl
+    chown craft:craft -R /var/www/html/ssl
+    mv /etc/apache2/cacert.pem /var/www/html/ssl
+    cp /etc/apache2/localdomain.crt /etc/apache2/localdomain.insecure.key /var/www/html/ssl
+    chown craft:craft -R /var/www/html/ssl
+fi
+
+apache2-foreground
