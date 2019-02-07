@@ -47,8 +47,8 @@ RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 RUN rm composer-setup.php
 
 # COPY SSL CONFIG
-COPY ssl/localdomain.csr.cnf /etc/apache2/
-COPY ssl/localdomain.v3.ext /etc/apache2/
+COPY config/localdomain.csr.cnf /etc/apache2/
+COPY config/localdomain.v3.ext /etc/apache2/
 
 # COPY STARTUP SCRIPT
 COPY ./config/startup /usr/local/bin
