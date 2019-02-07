@@ -25,10 +25,7 @@ services:
       - mysql
     environment: 
       LOCAL_UID: 1000
-      SITE_NAME: Craft
-      APACHE_RUN_USER: craft
-      APACHE_RUN_GROUP: craft
-      APACHE_DOCUMENT_ROOT: /var/www/html/web
+      SSL_SITE_NAME: Craft
     ports: 
       - "5000:443"
       - "8080:80"
@@ -80,16 +77,16 @@ In order to customise Craft to your site you must set the follwing environment v
 * ```MYSQL_USER```
 * ```MYSQL_PASSWORD```
 * ```LOCAL_UID```\*
-* ```SITE_NAME```
+* ```SSL_SITE_NAME```\**
 
 \* For Linux users, your ```LOCAL_UID``` must match the UID of the host.  This can be found by typing ```$ id -u```. (This environment variable can be ignored for macOS users.)
+
+\** The ```SSL_SITE_NAME``` environment variable is used to name the SSL certificate.  The certificates for each new site can be found under their respective name and (for Chromebooks) under the heading "org-localhost".  Each site can be freely deleted once finished with. 
 
 ## Further information
 * It is advised that you start docker-compose with a project name by typing ```docker-compose -p <project-name> up```. This will avoid any future name collisions with other containers
 
 * Your container can be ran in the background by adding the optional ```-d``` flag.  However, please note that Craft will need to install after the image has been built and will it take a few minutes before the installation process has completed.  The progress of this can be seen by typing ```docker logs <project-name>_craft_1 -f```.
-
-* The ```SITE_NAME``` environment variable is used to name the SSL certificate.  The certificates for each new site can be found under their respective name and (for Chromebooks) under the heading "org-localhost".  Each site can be freely deleted once finished with. 
 
 * Other ports can be used on your local device if necessary.
 
