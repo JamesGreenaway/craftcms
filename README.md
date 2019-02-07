@@ -1,6 +1,8 @@
 ### Introduction
-This docker image extends the official PHP / Apache build to include CraftCMS, MySQL and SSL Certification.
-Currently only suitable for local use. Compatible with macOS, Linux and Chromebook (Crostini).
+This docker image extends the official PHP / Apache build to include CraftCMS, MySQL and self-signed SSL certification.
+
+- Currently only suitable for local use 
+- Compatible with macOS, Linux and Chromebook (Crostini)
 
 ## How to use
 
@@ -41,14 +43,15 @@ volumes:
 1. Run ```$ docker-compose up```.
 
 1. Add self-certified SSL certificate to browsers certificate manager: 
->For macOS users:
+
+   For macOS users:
 * Double-click ```website/craft/ssl/cacert/pem``` to open the certificate in the Keychain Access utility
 * Double-click the certificate
 * Click the arrow next to Trust
 * Change the "When using this certificate" field to "Always Trust" and close the window
 * Enter password to confirm
     
->For Chromebook (Crostini) users:
+   For Chromebook (Crostini) users:
 * Go to ```chrome://certificate-manager/```
 * Click "Authorities" then "IMPORT"
 * Select ```website/craft/ssl/cacert.pem```
