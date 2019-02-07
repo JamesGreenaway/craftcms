@@ -19,8 +19,6 @@ services:
       MYSQL_PASSWORD: password
   craft:
     image: jamesgreenaway/craftcms:latest
-    build:
-      context: .
     restart: unless-stopped
     depends_on: 
       - mysql
