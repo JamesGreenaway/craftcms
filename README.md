@@ -42,31 +42,31 @@ volumes:
 
 1. Add self-certified SSL certificate to browsers certificate manager: 
 For macOS users:
-    * Double-click ```website/craft/ssl/cacert/pem``` to open the certificate in the Keychain Access utility
-    * Double-click the certificate
-    * Click the arrow next to Trust
-    * Change the "When using this certificate" field to "Always Trust" and close the window
-    * Enter password to confirm
+* Double-click ```website/craft/ssl/cacert/pem``` to open the certificate in the Keychain Access utility
+* Double-click the certificate
+* Click the arrow next to Trust
+* Change the "When using this certificate" field to "Always Trust" and close the window
+* Enter password to confirm
     
 For Chromebook (Crostini) users:
-    * Go to ```chrome://certificate-manager/```
-    * Click "Authorities" then "IMPORT"
-    * Select ```website/craft/ssl/cacert.pem```
-    * Choose "Trust this certificate for identifying websites"
-    * Click "OK"
+* Go to ```chrome://certificate-manager/```
+* Click "Authorities" then "IMPORT"
+* Select ```website/craft/ssl/cacert.pem```
+* Choose "Trust this certificate for identifying websites"
+* Click "OK"
     
 1. Go to ```https://localhost:5000/index.php?p=admin/install```
 
 1. Complete craft installation process:
-    * Accept license agreement
-    * Driver: MySQL
-    * Server: mysql
-    * Port: 3306
-    * Username: ```MYSQL_USER```
-    * Password: ```MYSQL_PASSWORD```
-    * Database Name: ```MYSQL_DATABASE```
-    * Create your account
-    * Set up your site
+* Accept license agreement
+* Driver: MySQL
+* Server: mysql
+* Port: 3306
+* Username: ```MYSQL_USER```
+* Password: ```MYSQL_PASSWORD```
+* Database Name: ```MYSQL_DATABASE```
+* Create your account
+* Set up your site
 
 ## Setting environment variables
 
