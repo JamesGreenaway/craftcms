@@ -51,7 +51,7 @@ COPY config/localdomain.csr.cnf /etc/apache2/
 COPY config/localdomain.v3.ext /etc/apache2/
 
 # COPY STARTUP SCRIPT
-COPY ./config/startup /usr/local/bin
+COPY ./config/startup.sh /usr/local/bin/
 
 # SET WORKING DIRECTORY
 WORKDIR /var/www/html/
