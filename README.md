@@ -45,7 +45,7 @@ volumes:
 1. Add self-certified SSL certificate to browsers certificate manager:
 
    For macOS users:
-   * Double-click ```website/craft/ssl/cacert/pem``` to open the certificate in the Keychain Access utility
+   * Double-click ```./craft/ssl/cacert.pem``` to open the certificate in the Keychain Access utility
    * Double-click the certificate
    * Click the arrow next to Trust
    * Change the "When using this certificate" field to "Always Trust" and close the window
@@ -54,7 +54,7 @@ volumes:
    For Chromebook (Crostini) users:
    * Go to ```chrome://certificate-manager/```
    * Click "Authorities" then "IMPORT"
-   * Select ```website/craft/ssl/cacert.pem```
+   * Select ```./craft/ssl/cacert.pem```
    * Choose "Trust this certificate for identifying websites"
    * Click "OK"
     
@@ -73,7 +73,7 @@ volumes:
 
 ## Setting environment variables
 
-In order to customise Craft to your site you must set the follwing environment variables in your docker-compose file: 
+In order to customise Craft to your site you must set the following environment variables in your docker-compose file: 
 
 * ```MYSQL_ROOT_PASSWORD```
 * ```MYSQL_DATABASE```
