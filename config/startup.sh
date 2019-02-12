@@ -11,7 +11,7 @@ fi
 chown craft:craft /var/www/html
 
 cd /var/www/html
-#data=$( stat -c %s .)
+
 if [ "$(ls -A $DIR)" ]; then
     echo '- Craft project already added'
 else
