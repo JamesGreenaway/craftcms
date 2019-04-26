@@ -8,7 +8,7 @@ This docker image extends the official PHP / Apache build to include CraftCMS, M
 
 #### docker-compose.yml
 ```yaml
-version: '3'
+version: '3.7'
 services: 
   mysql:
     image: mysql:5.7
@@ -27,6 +27,7 @@ services:
       - mysql
     environment: 
       LOCAL_UID: 1000
+      APACHE_SERVER_NAME: localhost
       SSL_SITE_NAME: Craft
     ports: 
       - "5000:443"
