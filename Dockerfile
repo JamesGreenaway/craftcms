@@ -26,7 +26,7 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 # CHANGE DOCUMENT ROOT
 ENV APACHE_DOCUMENT_ROOT /var/www/html/web
-RUN mkdir /var/www/html/web
+# RUN mkdir /var/www/html/web
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
@@ -36,10 +36,6 @@ RUN a2enmod ssl && a2enmod rewrite
 # OVERRIDE VIRTUALHOSTS
 COPY config/httpd-ssl.conf /etc/apache2/conf/extra/httpd-ssl.conf
 COPY config/000-default.conf /etc/apache2/sites-available
-RUN a2ensite 000-default.conf
-
-# SET SERVERNAME TO LOCALHOST
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # INSTALL COMPOSER
 RUN curl -sS https://getcomposer.org/installer -o composer-setup.php
@@ -50,15 +46,14 @@ RUN rm composer-setup.php
 COPY config/localdomain.csr.cnf /etc/apache2/
 COPY config/localdomain.v3.ext /etc/apache2/
 
-# COPY STARTUP SCRIPT
-COPY ./config/startup.sh /usr/local/bin/startup
-
 # SET WORKING DIRECTORY
 WORKDIR /var/www/html/
+
+# COPY STARTUP SCRIPT
+COPY ./config/startup.sh /usr/local/bin/startup
 
 # RUN STARTUP SCRIPT
 CMD ["startup"]
 
 # EXPOSE PORTS
 EXPOSE 80 443
-
