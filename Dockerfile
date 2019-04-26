@@ -35,8 +35,7 @@ RUN a2enmod ssl && a2enmod rewrite
 # OVERRIDE VIRTUALHOSTS
 COPY config/httpd-ssl.conf /etc/apache2/conf/extra/httpd-ssl.conf
 COPY config/000-default.conf /etc/apache2/sites-available
-COPY config/default-ssl.conf /etc/apache2/sites-available
-RUN a2ensite 000-default.conf && a2ensite default-ssl.conf
+RUN a2ensite 000-default.conf
 
 # SET SERVERNAME TO LOCALHOST
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
