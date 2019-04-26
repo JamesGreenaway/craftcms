@@ -81,11 +81,14 @@ In order to customise Craft to your site you must set the following environment 
 * ```MYSQL_USER```
 * ```MYSQL_PASSWORD```
 * ```LOCAL_UID```\*
-* ```SSL_SITE_NAME```\**
+* ```APACHE_SERVER_NAME```\**
+* ```SSL_SITE_NAME```\***
 
 \* For Linux users, your ```LOCAL_UID``` must match the UID of the host.  This can be found by typing ```$ id -u```. (This environment variable can be ignored for macOS users.)
 
-\** The ```SSL_SITE_NAME``` environment variable is used to name the SSL certificate.  The certificates for each new site can be found under their respective name and (for Chromebooks) under the heading "org-localhost".  Each site can be freely deleted once finished with. 
+\** The ```APACHE_SERVER_NAME``` environment variable is used to name the Apache server. For local use this will most commonly be ```localhost```. Your SSL certificate authority name will change accordingly.
+
+\*** The ```SSL_SITE_NAME``` environment variable is used to name the SSL certificate.  The certificates for each new site can be found under their respective name and (for Chromebooks) under the heading "org-localhost".  Each site can be freely deleted once finished with. 
 
 ## Further information
 * It is advised that you start docker-compose with a project name by typing ```docker-compose -p <project-name> up```. This will avoid any future name collisions with other containers
