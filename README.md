@@ -29,7 +29,7 @@ services:
       LOCAL_UID: 1000
       SSL_SITE_NAME: Craft
     ports: 
-      - "5000:443"
+      - "4433:443"
       - "8080:80"
     volumes: 
       - ./craft:/var/www/html/
