@@ -7,7 +7,7 @@ chown -R www-data:www-data /var/www/html
 if [ "$(ls -A /var/www/html/$DIR)" ]; then
     echo '- Craft project already added'
 else
-    sudo -H -u craft bash -c 'composer create-project craftcms/craft .'
+    sudo -H -u www-data bash -c 'composer create-project craftcms/craft .'
     chmod -R g+w config web storage vendor .env composer.json composer.lock
 fi
 
