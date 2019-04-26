@@ -11,4 +11,4 @@ L=SomeCity
 O=SomeOrganization
 OU=SomeUnit
 emailAddress=test@test.com
-CN = localhost
+CN = ${ENV::APACHE_SERVER_NAME}
