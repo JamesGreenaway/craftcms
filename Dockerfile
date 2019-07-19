@@ -1,6 +1,11 @@
 FROM amd64/php:7.3.0RC6-apache-stretch
 RUN apt-get update && apt-get -y upgrade
 
+# INSTALL CERTBOT
+RUN echo "deb http://deb.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install certbot python-certbot-apache -t stretch-backports -y
+
 # INSTALL INTL, IMAGEMAGIK, ZIP EXTENSIONS, NETWORK TOOLS, ETC...
 RUN apt-get install -y \ 
     zlib1g-dev libicu-dev g++ \
@@ -15,27 +20,8 @@ RUN apt-get install -y \
     && docker-php-ext-enable imagick \
     && docker-php-ext-install pdo pdo_mysql
 
-# SET MEMORY LIMIT 
-RUN echo 'memory_limit = 256M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini;
-RUN sed -e 's/max_execution_time = 30/max_execution_time = 120/' -i ${PHP_INI_DIR}/php.ini-development
-RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
-#               ***PRODUCTION CONFIGURATION***
-#STRONGLY RECOMMENDED: disable logs and assertion compilation 
-#RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-#               ******************************
-
-# CHANGE DOCUMENT ROOT
-ENV APACHE_DOCUMENT_ROOT /var/www/html/web
-# RUN mkdir /var/www/html/web
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
-
 # ENABLE APACHE REWRITES
 RUN a2enmod ssl && a2enmod rewrite
-
-# OVERRIDE VIRTUALHOSTS
-COPY config/httpd-ssl.conf /etc/apache2/conf/extra/httpd-ssl.conf
-COPY config/000-default.conf /etc/apache2/sites-available
 
 # INSTALL COMPOSER
 RUN curl -sS https://getcomposer.org/installer -o composer-setup.php

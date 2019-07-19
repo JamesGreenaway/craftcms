@@ -4,4 +4,4 @@ keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = ${ENV::APACHE_SERVER_NAME}
+DNS.1 = ${ENV::SITE_NAME}

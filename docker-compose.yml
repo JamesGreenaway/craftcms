@@ -19,12 +19,23 @@ services:
       - mysql
     environment: 
       LOCAL_UID: 1000
-      APACHE_SERVER_NAME: localhost
-      SSL_SITE_NAME: Craft
+      CONFIGURATION: production
+      SITE_NAME: jamesgreenaway.me
+      EMAIL: greenaway.james@gmail.com
+      SSL_CERTIFICATE_NAME: Craft
+      REDIS_HOST: redis
     ports: 
-      - "5000:443"
-      - "8080:80"
+      - "443:443"
+      - "80:80"
     volumes: 
+      - letsencrypt:/etc/letsencrypt/
       - ./craft:/var/www/html/
+      - ./virtualhost.conf:/tmp/000-default.conf
+  redis:
+    image: redis:4-alpine
+    volumes:
+      - redis:/data
 volumes: 
   mysql: {}
+  redis: {}
+  letsencrypt: {}
