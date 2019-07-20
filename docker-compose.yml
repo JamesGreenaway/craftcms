@@ -23,7 +23,6 @@ services:
       SITE_NAME: jamesgreenaway.me
       EMAIL: greenaway.james@gmail.com
       SSL_CERTIFICATE_NAME: Craft
-      REDIS_HOST: redis
     ports: 
       - "443:443"
       - "80:80"
