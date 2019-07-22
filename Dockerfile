@@ -1,18 +1,12 @@
+FROM composer:latest
 FROM amd64/php:7.3.0RC6-apache-stretch
 RUN apt-get update && apt-get -y upgrade
-
-# INSTALL CERTBOT
-RUN echo "deb http://deb.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
-RUN apt-get update
-RUN apt-get install certbot python-certbot-apache -t stretch-backports -y
 
 # INSTALL INTL, IMAGEMAGIK, ZIP EXTENSIONS, NETWORK TOOLS, ETC...
 RUN apt-get install -y \ 
     zlib1g-dev libicu-dev g++ \
     libmagickwand-dev libzip-dev \
-    net-tools iputils-ping \
-    git unzip \
-    sudo \
+    sudo mysql-client unzip \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl \
     && docker-php-ext-install zip \
@@ -20,23 +14,38 @@ RUN apt-get install -y \
     && docker-php-ext-enable imagick \
     && docker-php-ext-install pdo pdo_mysql
 
-# ENABLE APACHE REWRITES
+# SETUP APACHE
 RUN a2enmod ssl && a2enmod rewrite
+COPY ./config/000-default.conf /etc/apache2/sites-available/
+RUN sed -ri "s!/var/www/!/var/www/html/web!g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# CREATE USER
+ARG LOCAL_UID=1000
+RUN groupadd -g $LOCAL_UID craft && \
+    useradd -rm -s /bin/bash -u $LOCAL_UID -g craft -G sudo craft
+RUN echo "craft ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/craft && \
+    chmod 0440 /etc/sudoers.d/craft
 
 # INSTALL COMPOSER
-RUN curl -sS https://getcomposer.org/installer -o composer-setup.php
-RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-RUN rm composer-setup.php
-
-# COPY SSL CONFIG
-COPY config/localdomain.csr.cnf /etc/apache2/
-COPY config/localdomain.v3.ext /etc/apache2/
+COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # SET WORKING DIRECTORY
 WORKDIR /var/www/html/
 
-# COPY STARTUP SCRIPT
+# CONFIGURE PHP
+ARG PHP_MEMORY_LIMIT=256M
+ARG MAX_EXECUTION_TIME=120
+ARG ENVIRONMENT=development
+RUN  sh -c "echo 'memory_limit = $PHP_MEMORY_LIMIT' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini" && \
+sed -ri "s!max_execution_time = 30!max_execution_time = $MAX_EXECUTION_TIME!" -i "$PHP_INI_DIR/php.ini-$ENVIRONMENT" && \
+mv "$PHP_INI_DIR/php.ini-$ENVIRONMENT" "$PHP_INI_DIR/php.ini"
+
+# COPY SCRIPTS
 COPY ./config/startup.sh /usr/local/bin/startup
+RUN chmod a+x /usr/local/bin/startup
+
+# CHANGE USER
+USER craft
 
 # RUN STARTUP SCRIPT
 CMD ["startup"]

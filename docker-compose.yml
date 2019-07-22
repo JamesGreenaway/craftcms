@@ -1,40 +1,30 @@
-version: '3.7'
-services: 
-  mysql:
-    image: mysql:5.7
-    restart: unless-stopped
-    volumes: 
-      - mysql:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+version: "3.7"
+services:
   craft:
     image: craftcms
     build:
       context: .
-    restart: unless-stopped
-    depends_on: 
-      - mysql
-    environment: 
-      LOCAL_UID: 1000
-      CONFIGURATION: production
-      SITE_NAME: jamesgreenaway.me
-      EMAIL: greenaway.james@gmail.com
-      SSL_CERTIFICATE_NAME: Craft
-    ports: 
-      - "443:443"
-      - "80:80"
-    volumes: 
-      - letsencrypt:/etc/letsencrypt/
-      - ./craft:/var/www/html/
-      - ./virtualhost.conf:/tmp/000-default.conf
-  redis:
-    image: redis:4-alpine
+    restart: "no"
+    env_file: .env
     volumes:
-      - redis:/data
-volumes: 
-  mysql: {}
-  redis: {}
-  letsencrypt: {}
+      - traefik:/tmp/traefik
+      - ./craft:/var/www/html/
+      - ./virtualhost.conf:/tmp/virtualhost.conf
+    labels:
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=web
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.entrypoints=web-secure
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.middlewares=https
+      - traefik.http.middlewares.https.redirectscheme.scheme=https
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.tls=true
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(
+        `${COMPOSE_PROJECT_NAME}.test`, `www.${COMPOSE_PROJECT_NAME}.test`)
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.rule=Host(
+        `${COMPOSE_PROJECT_NAME}.test`, `www.${COMPOSE_PROJECT_NAME}.test`)
+    networks: 
+      - traefik
+networks:
+  traefik:
+    external: true
+volumes:
+  traefik:
+    external: true
