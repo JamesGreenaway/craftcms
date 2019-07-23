@@ -1,5 +1,5 @@
 FROM composer:latest
-FROM amd64/php:7.3.0RC6-apache-stretch
+FROM php:7.3-apache
 RUN apt-get update && apt-get -y upgrade
 
 # INSTALL INTL, IMAGEMAGIK, ZIP EXTENSIONS, NETWORK TOOLS, ETC...
