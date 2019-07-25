@@ -12,7 +12,7 @@ else
     sudo chown -R craft:www-data /var/www/html/
     sudo chmod g+s /var/www/html/
     setup_mysql_database () {
-        mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "CREATE DATABASE ${MYSQL_DATABASE}"
+        mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE}"
         mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "GRANT ALL PRIVILEGES ON *.* TO ${MYSQL_USER}@'%'"
         mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "FLUSH PRIVILEGES"
     }
@@ -25,15 +25,13 @@ else
         setup_mysql_database
         sudo chmod -R g+w config web storage vendor .env composer.json composer.lock
         ./craft setup/db-creds --interactive=0 \
-        --server=${MYSQL_HOSTNAME:-mysql} --database=${MYSQL_DATABASE} --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --port=${MYSQL_PORT} --driver=mysql --table-prefix=${DATABASE_TABLE_PREFIX}
+        --server=${MYSQL_HOSTNAME:-mysql} --database=${MYSQL_DATABASE} --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --port=${MYSQL_PORT:-3306} --driver=mysql --table-prefix=${DATABASE_TABLE_PREFIX}
         ./craft install --interactive=0 --email=${EMAIL_ADDRESS} --username=${USER_NAME} --password=${PASSWORD} --site-name=${COMPOSE_PROJECT_NAME} --site-url=${DEFAULT_SITE_URL}
     else 
         echo '- Existing Craft project found! Installing...'
         composer update
         ./craft setup/security-key
-        if [ $CREATE_NEW_DATABASE == "yes" ]; then
-            setup_mysql_database
-        fi
+        setup_mysql_database
         ./craft setup/db-creds --interactive=0 \
         --server=${MYSQL_HOSTNAME:-mysql} --database=${MYSQL_DATABASE} --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --port=${MYSQL_PORT} --driver=mysql --table-prefix=${DATABASE_TABLE_PREFIX}
     fi
