@@ -2,7 +2,9 @@
 In an effort to refine the workflow for installing multiple instances of websites running CraftCMS, this project harnesses the power of Docker to isolate the necessary resources to run Craft, and all its prerequisites, in an efficient manner.  This project intends be as flexible as possible by ensuring that, for every step in the installation process, there is the possibility for the user to customise it to suit their preferences. 
 
 This project uses Traefik, a open-source reverse proxy / load balancer, to route each website to its respective container through a tls connection.  Using mkcert, a simple, zero-config tool to make locally trusted development certificates with any names you'd like, you are able to give each website a secure, https-enabled url that can run alongside all your other websites. In order to begin, there are a few necessary steps that you will need to follow to get up and running.
+
 ## Quick Reference
+
 ## Prerequisites
 Please install these tools on you computer before continuing:
 1. [Docker](https://docs.docker.com/install/)
@@ -20,7 +22,9 @@ Homebrew is an optional MacOS-specific package manager used to install Dnsmasq a
 Dnsmasq will help us to map our own custom domain names to each website and will require the user to follow a one-time set-up process to get it running on their machine. 
 
 Finally, as previously explained, mkcert is the tool that we will use to fabricate our self-signed ssl certificates. Support is given for wildcard domain names and, once installed, requires no configuration. 
+
 ## Installation Instructions
+
 ### Step 1:
 Create a directory called `traefik/` inside the directory create a file `docker-compose.yml`. Copy the following text in to that file:
 ```
@@ -75,8 +79,10 @@ Here we are creating two services: traefik and mysql.  The first service, traefi
 Traefik is linked to an external volume also named traefik, this is how we update traefik with instructions of where to find the certificates for each website we create. This is done automatically each time we run a new instance of Craft. We also have a `certs` directory which will link all our certificates to traefik for it to reference.  Finally we are sending it some static configuration commands that outline the ports we wish to create and through what format we intend to dynamically update traefik. 
 
 The second service we create is called mysql, here we are using mysql's official docker image.  We are creating a named volume called mysql which allows us to store our persistent database data locally on our machine, allowing us to start and stop our container without fear of losing all our data. We are also using three environment variables that are required to create a root user and custom user with associated passwords. This service is also linked via the external network and volume which are both named traefik. 
+
 #### How To Run
 In order to run this file we will first need to create our external networks and volumes by entering: `docker network create traefik` and `docker volume create traefik`. Now we can run our docker-compose file by entering `docker-compose up -d` inside the `traefik/` directory.  Our services `traefik` and `mysql` will now be initialized and running.  To stop them running you can enter `docker-compose down` however for the most part these can just be left up and running all the time. You can see all running containers by entering `docker ps -a`. 
+
 ### Step 2: 
 Next we need a place to run our website. Create another separate directory with the name of our website. Inside that directory copy the following text in to another `docker-compose.yml` file: 
 ``` 
@@ -116,12 +122,15 @@ In order to run this image however, you will first need to provide it with a cou
 We must also inform Traefik of our intentions. The labels provided link this craft service to our open ports, tell Traefik that we would like a tls connection and provides it with the domain names we intend to use, based off the environment variable named `$COMPOSE_PROJECT_NAME` (see below for further information). Our domain names can include optional subdomains i.e. `www.` or `dev.`, they just need to be added to both labels with the Host rule in the form of a comma separated, backtick surrounded list. We are also providing Traefik with optional middleware which will redirect all http connection to https. 
 
 Finally, our craft service is then linked to our external network and volume allowing it to communicate with Traefik and our mysql service. 
+
 #### How To Run
 * `docker-compose up -d` - to run
 * `docker-compose down` - to stop
+
 ##### Other Useful Commands
 * `docker logs projectname_craft_1 -f` - to see and follow the logs (useful when installing to follow the Craft installation)
 * `docker exec -it projectname_craft_1 /bin/bash` - to start and interactive tty session inside the container
+
 ## Environment Variables
 * `MYSQL_ROOT_PASSWORD=password`
 > Needed so that the Craft instance can create database entries. Must match the mysql service!
@@ -147,9 +156,12 @@ Finally, our craft service is then linked to our external network and volume all
 > Sets the website name inside Craft and is also used to set the `ServerName` for Apache. Please omit the `https://` protocol.
 * `COMPOSE_PROJECT_NAME=example`
 > *Important*: This variable serves to set the name of the whole project. This useful for when you need to execute docker commands on this container.  It is also used to set the name of the certificate file therefore it is important to ensure that is matches the same name given to the certificate file. Finally it is also used to set the name of the Traefik routers and Host rules.
+
 ## Additional Features
+
 ### Setting up your own custom virtualhost. 
 In order to add your own custom virtualhost you can create a file called `virtualhost.conf` inside the project directory. It is also possible to add a subdomain, in order for your site to be housed within the `craft/` volume  ensure that your `DocumentRoot` is within `/var/www/html/`.
+
 ### Building the image with alternative arguments. 
 It is also possible to build this image with some additional arguments. This can alter some of the lower level setting that are already predetermined. In order to add these arguments you need to reference the github repository as a context and add the arguments to the `docker-compose.yml`. For example: 
 ```
@@ -171,6 +183,7 @@ These are the environment variables that are available to add (if necessary):
 > The recommended execution time for Craft is 120 this is already set as a default. Use this variable if you require more time. 
 * ENVIRONMENT
 > This image has been created to be environment agnostic, the current default is `development` however, if you need to run this in a production environment you can use `production`. This will set the php.ini so that it is ready for production. 
+
 ### Exporting and importing databases.
 * `docker exec <container-name> sh -c 'exec mysqldump <database> -uroot -p"$MYSQL_ROOT_PASSWORD"' > mysqldump.sql`
 > This will take an existing database and dump the contents of the database in a file named mysqldump.sql
@@ -183,9 +196,13 @@ These are the environment variables that are available to add (if necessary):
 
 * `ssh <remote_server> mysqldump <database> | docker exec -i <container-name> sh -c 'exec mysql <database> -uroot -p"$MYSQL_ROOT_PASSWORD"'`
 > This will take a existing database inside a remote server and dump the contents inside named local database. 
+
 ## Configuring the Other Tools
+
 ### dnsmaq
+
 #### MacOS
+
 *Create a dns resolver*
 
 `sudo mkdir -p /etc/resolver`
@@ -199,8 +216,10 @@ These are the environment variables that are available to add (if necessary):
 *Start dnsmasq as a service so it automatically starts at login*
 
 `sudo brew services start dnsmasq`
+
 #### Linux
 Linux does not offer the option to add resolvers to `/etc/resolver`. You must add `nameserver 127.0.0.1` to `/etc/resolv.conf`. You should also uncomment `prepend domain-name-servers 127.0.0.1;` from `/etc/dhcp/dhclient.conf` to ensure that the dhclient does not override `resolv.conf`.
+
 ### mkcert
 Please consult [mkcert](https://github.com/FiloSottile/mkcert) for full installation instructions.
 
