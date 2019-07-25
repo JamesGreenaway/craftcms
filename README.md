@@ -1,19 +1,19 @@
-# A fully customisable local developlment workflow for CraftCMS. 
-In an effort to refine the workflow for installing multiple instances of websites running CraftCMS, this project harnesses the power of Docker to isolate the necessary resources to run Craft, and all its prerequisites, in an efficient manner.  This project intends be as flexible as possible by ensuring that, for every step in the installation process, there is the possibilty for the user to customise it to suit their preferences. 
+# A fully customisable local development workflow for CraftCMS. 
+In an effort to refine the workflow for installing multiple instances of websites running CraftCMS, this project harnesses the power of Docker to isolate the necessary resources to run Craft, and all its prerequisites, in an efficient manner.  This project intends be as flexible as possible by ensuring that, for every step in the installation process, there is the possibility for the user to customise it to suit their preferences. 
 
 This project uses Traefik, a open-source reverse proxy / load balancer, to route each website to its respective container through a tls connection.  Using mkcert, a simple, zero-config tool to make locally trusted development certificates with any names you'd like, you are able to give each website a secure, https-enabled url that can run alongside all your other websites. In order to begin, there are a few necessary steps that you will need to follow to get up and running.
 ## Quick Reference
 ## Prerequisites
-Pleae install these tools on you computer before continuing:
+Please install these tools on you computer before continuing:
 1. [Docker](https://docs.docker.com/install/)
 1. [Docker Compose](https://docs.docker.com/compose/install/)
 1. [Homebrew](https://brew.sh/)
 1. [Dnsmasq](https://wiki.debian.org/HowTo/dnsmasq)
 1. [Mkcert](https://github.com/vishnudxb/docker-mkcert)
 
-Docker is used to run each Craft project in a container.  This means that no matter what device you are running it on, as long as it can run Docker, each project will be running in the same isolated environment.  Containers can be spun up and down quickly and have rock-solid stability. The images that are used in this project are all based on official images supported by Docker, and are all regulary maintined by their respective providers. 
+Docker is used to run each Craft project in a container.  This means that no matter what device you are running it on, as long as it can run Docker, each project will be running in the same isolated environment.  Containers can be spun up and down quickly and have rock-solid stability. The images that are used in this project are all based on official images supported by Docker, and are all regularly maintained by their respective providers. 
  
-Docker Compose is offical tool created by Docker to house all the commands that you need to to provide to each container.  We will be using Docker Compose to outline all the instructions that need to be sent to Docker to install and run our Craft projects. 
+Docker Compose is official tool created by Docker to house all the commands that you need to to provide to each container.  We will be using Docker Compose to outline all the instructions that need to be sent to Docker to install and run our Craft projects. 
 
 Homebrew is an optional MacOS-specific package manager used to install Dnsmasq and mkcert. Both tools can be installed without Homebrew, however for ease-of-use it is recommended that you install it. Note: This will not be required for Linux based devices.
 
@@ -74,11 +74,11 @@ Here we are creating two services: traefik and mysql.  The first service, traefi
 
 Traefik is linked to an external volume also named traefik, this is how we update traefik with instructions of where to find the certificates for each website we create. This is done automatically each time we run a new instance of Craft. We also have a `certs` directory which will link all our certificates to traefik for it to reference.  Finally we are sending it some static configuration commands that outline the ports we wish to create and through what format we intend to dynamically update traefik. 
 
-The second service we create is called mysql, here we are using mysql's offical docker image.  We are creating a named volume called mysql which allows us to store our persistent database data locally on our machine, allowing us to start and stop our container without fear of losing all our data. We are also using three environment variables that are required to create a root user and custom user with associated passwords. This service is also linked via the external network and volume which are both named traefik. 
+The second service we create is called mysql, here we are using mysql's official docker image.  We are creating a named volume called mysql which allows us to store our persistent database data locally on our machine, allowing us to start and stop our container without fear of losing all our data. We are also using three environment variables that are required to create a root user and custom user with associated passwords. This service is also linked via the external network and volume which are both named traefik. 
 #### How To Run
 In order to run this file we will first need to create our external networks and volumes by entering: `docker network create traefik` and `docker volume create traefik`. Now we can run our docker-compose file by entering `docker-compose up -d` inside the `traefik/` directory.  Our services `traefik` and `mysql` will now be initialized and running.  To stop them running you can enter `docker-compose down` however for the most part these can just be left up and running all the time. You can see all running containers by entering `docker ps -a`. 
 ### Step 2: 
-Next we need a place to run our website. Create another seperate directory with the name of our website. Inside that directory copy the following text in to another `docker-compose.yml` file: 
+Next we need a place to run our website. Create another separate directory with the name of our website. Inside that directory copy the following text in to another `docker-compose.yml` file: 
 ``` 
 version: "3.7"
 services:
@@ -111,9 +111,9 @@ volumes:
 ```
 This file uses a custom image that is based on the official PHP apache and Composer images.  We are using PHP version 7.3 and the latest version of Composer. When built this image will install all of the necessary packages and settings that are required to run CraftCMS. When run, the image will determine whether you need a fresh installation of Craft to be installed or whether you are using an existing project. If you are starting a new project a craft volume will be automatically created and a new instance of Craft will be install inside it. In order to migrate an existing project, you must create a directory called `craft/` and install your project inside it. Our docker image will run `composer update` to install all the dependencies and either link it to an existing database or create a new one for you. 
 
-In order to run this image however, you will first need to provide it with a couple of additional files. There needs to a file named `.env` this will be used to list all of our enviroment variables that we will need to customise our installation. Please see below for a listing of all the environment variables that we use. We can also include an optional `virtualhost.conf` file to customise the Apache server to our requirements. Note: If this is not added a virtualhost with the environment variable (see below) `$DEFAULT_SITE_URL` as its Server Name will be automatically created. 
+In order to run this image however, you will first need to provide it with a couple of additional files. There needs to a file named `.env` this will be used to list all of our environment variables that we will need to customise our installation. Please see below for a listing of all the environment variables that we use. We can also include an optional `virtualhost.conf` file to customise the Apache server to our requirements. Note: If this is not added a virtualhost with the environment variable (see below) `$DEFAULT_SITE_URL` as its Server Name will be automatically created. 
 
-We must also inform Traefik of our intentions. The labels provided link this craft service to our open ports, tell Traefik that we would like a tls connection and provides it with the domain names we intend to use, based off the environment variable named `$COMPOSE_PROJECT_NAME` (see below for futher infomation). Our domain names can include optional subdomains i.e. `www.` or `dev.`, they just need to be added to both labels with the Host rule in the form of a comma separated, backtick surrounded list. We are also providing Traefik with optional middleware which will redirect all http connection to https. 
+We must also inform Traefik of our intentions. The labels provided link this craft service to our open ports, tell Traefik that we would like a tls connection and provides it with the domain names we intend to use, based off the environment variable named `$COMPOSE_PROJECT_NAME` (see below for further information). Our domain names can include optional subdomains i.e. `www.` or `dev.`, they just need to be added to both labels with the Host rule in the form of a comma separated, backtick surrounded list. We are also providing Traefik with optional middleware which will redirect all http connection to https. 
 
 Finally, our craft service is then linked to our external network and volume allowing it to communicate with Traefik and our mysql service. 
 #### How To Run
@@ -121,7 +121,7 @@ Finally, our craft service is then linked to our external network and volume all
 * `docker-compose down` - to stop
 ##### Other Useful Commands
 * `docker logs projectname_craft_1 -f` - to see and follow the logs (useful when installing to follow the Craft installation)
-* `docker exec -it projectname_craft_1 /bin/bash` - to start and interative tty session inside the container
+* `docker exec -it projectname_craft_1 /bin/bash` - to start and interactive tty session inside the container
 ## Environment Variables
 * `MYSQL_ROOT_PASSWORD=password`
 > Needed so that the Craft instance can create database entries. Must match the mysql service!
@@ -130,7 +130,7 @@ Finally, our craft service is then linked to our external network and volume all
 * `MYSQL_PASSWORD=password`
 > Needed so that the Craft instance can create database entries. Must match the mysql service!
 * `MYSQL_DATABASE=db`
-> Creates a database using this name. Grants all privilages to `$MYSQL_USER`.
+> Creates a database using this name. Grants all privileges to `$MYSQL_USER`.
 * `MYSQL_PORT=3306`
 > *Optional*: Sets the port for mysql, default is already set to 3306.
 * `MYSQL_HOST_NAME=mysql`
