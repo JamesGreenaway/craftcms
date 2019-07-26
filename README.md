@@ -226,3 +226,6 @@ In order to create a certificate for each project ensure that you are inside the
 `mkcert -cert-file certs/example-cert.pem -key-file certs/example-key.pem "example.test" "*.example.test"`
 
 It is possible to add more domain names, if required. For example if you are adding a subdomain you would add `"dev.example.test"`. 
+
+Once you have created your certificates you will need to restart Traefik by entering: 
+`docker-compose restart traefik`
