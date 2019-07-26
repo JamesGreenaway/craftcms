@@ -9,6 +9,7 @@ echo -e "\n[tls]\n  [[tls.certificates]]\n    certFile = \"/certs/$COMPOSE_PROJE
 if [ -d /var/www/html/vendor/ ]; then
     echo '- Craft project already created.'
 else
+    sudo chmod g+s /var/www/html/
     setup_mysql_database () {
         mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE}"
         mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "GRANT ALL PRIVILEGES ON *.* TO ${MYSQL_USER}@'%'"
@@ -34,7 +35,6 @@ else
         --server=${MYSQL_HOSTNAME:-mysql} --database=${MYSQL_DATABASE} --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --port=${MYSQL_PORT} --driver=mysql --table-prefix=${DATABASE_TABLE_PREFIX}
    fi
    sudo chown -R craft:www-data /var/www/html/
-   sudo chmod g+s /var/www/html/
 fi
 
 if [ -f /tmp/virtualhost.conf ]; then
