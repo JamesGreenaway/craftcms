@@ -209,7 +209,7 @@ These are the environment variables that are available to add (if necessary):
 
 `echo "nameserver 127.0.0.1" | sudo tee -a /etc/resolver/test > /dev/null`
 
-*Configure dnsmasq for \*.test*
+*Configure dnsmasq for test*
 
 `echo ‘address=/.test/127.0.0.1’ >> $(brew — prefix)/etc/dnsmasq.conf`
 
