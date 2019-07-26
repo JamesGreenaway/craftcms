@@ -23,10 +23,10 @@ else
         composer create-project craftcms/craft /var/www/html/
         ./craft setup/security-key
         setup_mysql_database
-        sudo chmod -R g+w config web storage vendor .env composer.json composer.lock
         ./craft setup/db-creds --interactive=0 \
         --server=${MYSQL_HOSTNAME:-mysql} --database=${MYSQL_DATABASE} --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --port=${MYSQL_PORT:-3306} --driver=mysql --table-prefix=${DATABASE_TABLE_PREFIX}
         ./craft install --interactive=0 --email=${EMAIL_ADDRESS} --username=${USER_NAME} --password=${PASSWORD} --site-name=${COMPOSE_PROJECT_NAME} --site-url=${DEFAULT_SITE_URL}
+        sudo chmod -R g+w config web storage vendor .env composer.json composer.lock
     else 
         echo '- Existing Craft project found! Installing...'
         composer update
@@ -34,7 +34,8 @@ else
         setup_mysql_database
         ./craft setup/db-creds --interactive=0 \
         --server=${MYSQL_HOSTNAME:-mysql} --database=${MYSQL_DATABASE} --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --port=${MYSQL_PORT} --driver=mysql --table-prefix=${DATABASE_TABLE_PREFIX}
-    fi
+        sudo chmod -R g+w config web storage vendor .env composer.json composer.lock
+   fi
 fi
 
 if [ -f /tmp/virtualhost.conf ]; then
