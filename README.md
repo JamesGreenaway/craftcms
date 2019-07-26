@@ -126,16 +126,16 @@ Finally, our craft service is then linked to our external network and volume all
 * `docker-compose down` - to stop
 
 ##### Other Useful Commands
-* `docker logs projectname_craft_1 -f` - to see and follow the logs (useful when installing to follow the Craft installation)
+* `docker-compose logs -f` - to see and follow the logs (useful when installing to follow the Craft installation)
 * `docker exec -it projectname_craft_1 /bin/bash` - to start and interactive tty session inside the container
 
 ## Environment Variables
 * `MYSQL_ROOT_PASSWORD=password`
-> Needed so that the Craft instance can create database entries. Must match the mysql service!
+> Needed so that the Craft instance can create database entries. *Note*: Must match the environment variables used in our mysql service.
 * `MYSQL_USER=user`
-> Needed so that the Craft instance can create database entries. Must match the mysql service!
+> Needed so that the Craft instance can create database entries. *Note*: Must match the environment variables used in our mysql service!
 * `MYSQL_PASSWORD=password`
-> Needed so that the Craft instance can create database entries. Must match the mysql service!
+> Needed so that the Craft instance can create database entries. *Note*: Must match the environment variables used in our mysql service!
 * `MYSQL_DATABASE=db`
 > Creates a database using this name. Grants all privileges to `$MYSQL_USER`.
 * `MYSQL_PORT=3306`
@@ -149,19 +149,19 @@ Finally, our craft service is then linked to our external network and volume all
 * `USER_NAME=admin`
 > Sets the username for Craft dashboard.
 * `PASSWORD=password`
-> Sets the password for Craft admin dashboard.
+> Sets the password for Craft dashboard.
 * `DEFAULT_SITE_URL=example.test`
 > Sets the website name inside Craft and is also used to set the `ServerName` for Apache. Please omit the `https://` protocol.
 * `COMPOSE_PROJECT_NAME=example`
-> *Important*: This variable serves to set the name of the whole project. This useful for when you need to execute docker commands on this container.  It is also used to set the name of the certificate file therefore it is important to ensure that is matches the same name given to the certificate file. Finally it is also used to set the name of the Traefik routers and Host rules.
+> *Important*: This variable serves to set the name of the whole project. This useful for when you need to execute docker commands on this container.  It is also used to set the name of the certificate file therefore it is important to ensure that is matches the same name given to the certificates for this site. Finally it is also used to set the name of the Traefik routers and Host rules.
 
 ## Additional Features
 
 ### Setting up your own custom virtualhost. 
-In order to add your own custom virtualhost you can create a file called `virtualhost.conf` inside the project directory. It is also possible to add a subdomain, in order for your site to be housed within the `craft/` volume  ensure that your `DocumentRoot` is within `/var/www/html/`.
+In order to add your own custom virtualhost you can create a file called `virtualhost.conf` inside the project directory. It is also possible to add a subdomain, in order for your site to be housed within the `craft/` volume ensure that your `DocumentRoot` is within `/var/www/html/...`.
 
 ### Building the image with alternative arguments. 
-It is also possible to build this image with some additional arguments. This can alter some of the lower level setting that are already predetermined. In order to add these arguments you need to reference the github repository as a context and add the arguments to the `docker-compose.yml`. For example: 
+It is also possible to build this image with some additional arguments. This can alter some of the lower level setting that are already predetermined. In order to add these arguments you need to reference the Github repository as a context and add the arguments to the `docker-compose.yml`. For example: 
 ```
 services:
   craft:
@@ -209,7 +209,7 @@ These are the environment variables that are available to add (if necessary):
 
 *Configure dnsmasq for test*
 
-`echo ‘address=/.test/127.0.0.1’ >> $(brew — prefix)/etc/dnsmasq.conf`
+`echo 'address=/.test/127.0.0.1' >> $(brew — prefix)/etc/dnsmasq.conf`
 
 *Start dnsmasq as a service so it automatically starts at login*
 
@@ -221,7 +221,7 @@ Linux does not offer the option to add resolvers to `/etc/resolver`. You must ad
 ### mkcert
 Please consult [mkcert](https://github.com/FiloSottile/mkcert) for full installation instructions.
 
-In order to create a certificate for each project ensure that you are inside the `traefik/` directory and run the following command replacing example with the value used for `$COMPOSER_PROJECT_NAME`:
+In order to create a certificate for each project ensure that you are inside the `traefik/` directory and run the following command replacing `example` with the value used for `$COMPOSER_PROJECT_NAME`:
 
 `mkcert -cert-file certs/example-cert.pem -key-file certs/example-key.pem "example.test" "*.example.test"`
 
