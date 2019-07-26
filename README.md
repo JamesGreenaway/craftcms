@@ -197,7 +197,7 @@ These are the environment variables that are available to add (if necessary):
 
 ## Configuring the Other Tools
 
-### dnsmaq
+### Dnsmaq
 
 #### MacOS
 
@@ -207,19 +207,19 @@ These are the environment variables that are available to add (if necessary):
 
 `echo "nameserver 127.0.0.1" | sudo tee -a /etc/resolver/test > /dev/null`
 
-*Configure dnsmasq for test*
+*Configure Dnsmasq for test*
 
 `echo 'address=/.test/127.0.0.1' >> $(brew — prefix)/etc/dnsmasq.conf`
 
-*Start dnsmasq as a service so it automatically starts at login*
+*Start Dnsmasq as a service so it automatically starts at login*
 
 `sudo brew services start dnsmasq`
 
 #### Linux
 Linux does not offer the option to add resolvers to `/etc/resolver`. You must add `nameserver 127.0.0.1` to `/etc/resolv.conf`. You should also uncomment `prepend domain-name-servers 127.0.0.1;` from `/etc/dhcp/dhclient.conf` to ensure that the dhclient does not override `resolv.conf`.
 
-### mkcert
-Please consult [mkcert](https://github.com/FiloSottile/mkcert) for full installation instructions.
+### Mkcert
+Please consult [mkcert](https://github.com/FiloSottile/mkcert) for full installation instructions. *Note*: Once you have installed Mkcert you will likely need to restart your local machine. 
 
 In order to create a certificate for each project ensure that you are inside the `traefik/` directory and run the following command replacing `example` with the value used for `$COMPOSER_PROJECT_NAME`:
 
