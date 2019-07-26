@@ -19,7 +19,7 @@ Homebrew is an optional MacOS-specific package manager used to install Dnsmasq a
 
 Dnsmasq will help us to map our own custom domain names to each website and will require the user to follow a one-time set-up process to get it running on their machine. 
 
-Finally, as previously explained, mkcert is the tool that we will use to fabricate our self-signed ssl certificates. Support is given for wildcard domain names and, once installed, requires no configuration. 
+Finally, as previously explained, Mkcert is the tool that we will use to fabricate our self-signed ssl certificates. Support is given for wildcard domain names and, once installed, requires no configuration. 
 
 ## Installation Instructions
 
