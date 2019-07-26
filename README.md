@@ -89,7 +89,7 @@ Next we need a place to run our website. Create another separate directory with 
 version: "3.7"
 services:
   craft:
-    image: jamesgreenaway/craftcms
+    image: jamesgreenaway/craftcms:latest
     restart: unless-stopped
     env_file: .env
     volumes:
