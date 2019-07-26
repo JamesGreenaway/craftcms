@@ -15,7 +15,7 @@ Docker is used to run each Craft project in a container.  This means that no mat
  
 Docker Compose is official tool created by Docker to house all the commands that you need to to provide to each container.  We will be using Docker Compose to outline all the instructions that need to be sent to Docker to install and run our Craft projects. 
 
-Homebrew is an optional MacOS-specific package manager used to install Dnsmasq and mkcert. Both tools can be installed without Homebrew, however for ease-of-use it is recommended that you install it. Note: This will not be required for Linux based devices.
+Homebrew is an optional MacOS-specific package manager used to install Dnsmasq and Mkcert. Both tools can be installed without Homebrew, however for ease-of-use it is recommended that you install it. Note: This will not be required for Linux based devices.
 
 Dnsmasq will help us to map our own custom domain names to each website and will require the user to follow a one-time set-up process to get it running on their machine. 
 
