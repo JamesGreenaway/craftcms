@@ -9,7 +9,7 @@ Please install these tools on you computer before continuing:
 1. [Docker Compose](https://docs.docker.com/compose/install/)
 1. [Homebrew](https://brew.sh/)
 1. [Dnsmasq](https://wiki.debian.org/HowTo/dnsmasq)
-1. [Mkcert](https://github.com/vishnudxb/docker-mkcert)
+1. [Mkcert](https://github.com/FiloSottile/mkcert)
 
 Docker is used to run each Craft project in a container.  This means that no matter what device you are running it on, as long as it can run Docker, each project will be running in the same isolated environment.  Containers can be spun up and down quickly and have rock-solid stability. The images that are used in this project are all based on official images supported by Docker, and are all regularly maintained by their respective providers. 
  
