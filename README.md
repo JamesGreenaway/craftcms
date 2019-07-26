@@ -167,7 +167,8 @@ services:
   craft:
     image: jamesgreenaway/craftcms
     build:
-      context: https://github.com/JamesGreenaway/craftcms
+      context: https://github.com/JamesGreenaway/craftcms.git
+      dockerfile: /Dockerfile
       args:
         ENVIRONMENT_VARIABLE: value 
 ... 
@@ -181,6 +182,10 @@ These are the environment variables that are available to add (if necessary):
 > The recommended execution time for Craft is 120 this is already set as a default. Use this variable if you require more time. 
 * ENVIRONMENT
 > This image has been created to be environment agnostic, the current default is `development` however, if you need to run this in a production environment you can use `production`. This will set the php.ini so that it is ready for production. 
+
+#### How To Run
+
+* `docker-compose build` - to run
 
 ### Exporting and importing databases.
 * `docker exec <container-name> sh -c 'exec mysqldump <database> -uroot -p"$MYSQL_ROOT_PASSWORD"' > mysqldump.sql`
