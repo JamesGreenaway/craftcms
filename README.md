@@ -183,9 +183,9 @@ These are the environment variables that are available to add (if necessary):
 * ENVIRONMENT
 > This image has been created to be environment agnostic, the current default is `development` however, if you need to run this in a production environment you can use `production`. This will set the php.ini so that it is ready for production. 
 
-#### How To Run
+#### How To Build
 
-* `docker-compose build` - to run
+* `docker-compose build` - to build
 
 ### Exporting and importing databases.
 * `docker exec <container-name> sh -c 'exec mysqldump <database> -uroot -p"$MYSQL_ROOT_PASSWORD"' > mysqldump.sql`
