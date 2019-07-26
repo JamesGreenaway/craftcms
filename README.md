@@ -3,8 +3,6 @@ In an effort to refine the workflow for installing multiple instances of website
 
 This project uses Traefik, a open-source reverse proxy / load balancer, to route each website to its respective container through a tls connection.  Using mkcert, a simple, zero-config tool to make locally trusted development certificates with any names you'd like, you are able to give each website a secure, https-enabled url that can run alongside all your other websites. In order to begin, there are a few necessary steps that you will need to follow to get up and running.
 
-## Quick Reference
-
 ## Prerequisites
 Please install these tools on you computer before continuing:
 1. [Docker](https://docs.docker.com/install/)
