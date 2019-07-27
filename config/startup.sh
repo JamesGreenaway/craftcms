@@ -37,6 +37,7 @@ else
    fi
    sudo chmod -R g+w config web/cpresources storage vendor .env composer.json composer.lock
    sudo chown -R craft:www-data /var/www/html/
+   sudo chmod g+s -R /var/www/html/
 fi
 
 if [ -f /tmp/virtualhost.conf ]; then
