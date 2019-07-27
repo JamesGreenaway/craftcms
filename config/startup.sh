@@ -1,5 +1,8 @@
 #!/bin/bash
 set -e
+sudo groupmod --new-name ${LOCAL_MACHINE_USER} www-data
+sudo sh -c "echo \"export APACHE_RUN_USER=${LOCAL_MACHINE_USER}\" >> ~/.bashrc"
+sudo sh -c "echo \"export APACHE_RUN_GROUP=${LOCAL_MACHINE_USER}\" >> ~/.bashrc"
 
 if [ -f /tmp/traefik/$COMPOSE_PROJECT_NAME.toml ]; then
     sudo rm /tmp/traefik/$COMPOSE_PROJECT_NAME.toml
