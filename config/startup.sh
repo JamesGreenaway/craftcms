@@ -25,7 +25,8 @@ else
         setup_mysql_database
         ./craft setup/db-creds --interactive=0 \
         --server=${MYSQL_HOSTNAME:-mysql} --database=${MYSQL_DATABASE} --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --port=${MYSQL_PORT:-3306} --driver=mysql --table-prefix=${DATABASE_TABLE_PREFIX}
-        ./craft install --interactive=0 --email=${EMAIL_ADDRESS} --username=${USER_NAME} --password=${PASSWORD} --site-name=${COMPOSE_PROJECT_NAME} --site-url=https://${DEFAULT_SITE_URL}
+        ./craft install --interactive=0 --email=${EMAIL_ADDRESS} --username=${USER_NAME} --password=${PASSWORD} --site-name=${COMPOSE_PROJECT_NAME} --site-url=${DEFAULT_SITE_URL}
+         echo "DEFAULT_SITE_URL=\"https://$DEFAULT_SITE_URL\"" >> /var/www/html/.env
     else 
         echo '- Existing Craft project found! Installing...'
         composer update
