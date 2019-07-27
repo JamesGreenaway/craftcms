@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-sudo groupmod --new-name ${LOCAL_MACHINE_USER} www-data
+sudo usermod -l ${LOCAL_MACHINE_USER} www-data
 sudo sh -c "echo \"export APACHE_RUN_USER=${LOCAL_MACHINE_USER}\" >> ~/.bashrc"
 sudo sh -c "echo \"export APACHE_RUN_GROUP=${LOCAL_MACHINE_USER}\" >> ~/.bashrc"
 
