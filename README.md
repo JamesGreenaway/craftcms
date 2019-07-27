@@ -122,11 +122,12 @@ We must also inform Traefik of our intentions. The labels provided link this cra
 Finally, our craft service is then linked to our external network and volume allowing it to communicate with Traefik and our mysql service we created above. 
 
 #### How To Run
-* `docker-compose up -d` - to run
+* `docker-compose up -d` - to run 
+> *Note*: This can take some time, please see the `logs` command below to follow the installation progress.
 * `docker-compose down` - to stop
 
 ##### Other Useful Commands
-* `docker-compose logs -f` - to see and follow the logs (useful when installing to follow the Craft installation)
+* `docker-compose logs -f` - to watch the logs
 * `docker exec -it projectname_craft_1 /bin/bash` - to start and interactive tty session inside the container
 
 ## Environment Variables
@@ -185,7 +186,7 @@ These are the environment variables that are available to add (if necessary):
 
 #### How To Build
 
-* `docker-compose build` - to build
+* `docker-compose build` 
 
 ### Exporting and importing databases.
 * `docker exec <container-name> sh -c 'exec mysqldump <database> -uroot -p"$MYSQL_ROOT_PASSWORD"' > mysqldump.sql`
