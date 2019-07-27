@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+sudo sh -c "echo ': \${APACHE_RUN_GROUP:=www-data}\nexport APACHE_RUN_GROUP\n' >> /etc/apache2/envvars"
+
 if [ -f /tmp/traefik/$COMPOSE_PROJECT_NAME.toml ]; then
     sudo rm /tmp/traefik/$COMPOSE_PROJECT_NAME.toml
 fi
