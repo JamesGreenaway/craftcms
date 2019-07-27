@@ -197,7 +197,7 @@ These are the environment variables that are available to add (if necessary):
 * `docker exec <container-name> sh -c 'exec mysqldump <database> -uroot -p"$MYSQL_ROOT_PASSWORD"' | ssh <remote_server> mysql -u root <database>`
 > This will take an existing database and dump the contents of the database in to a named database inside a remote server
 
-* `ssh <remote_server> mysqldump <database> | docker exec -i <container-name> sh -c 'exec mysql <database> -uroot -p"$MYSQL_ROOT_PASSWORD"'`
+* `ssh <remote_server> mysqldump <database> | docker exec -i <container-name> sh -c 'exec mysql <database> -u root -p "$MYSQL_ROOT_PASSWORD"'`
 > This will take a existing database inside a remote server and dump the contents inside named local database. 
 
 ## Configuring the Other Tools
