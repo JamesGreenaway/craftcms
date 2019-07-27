@@ -35,6 +35,7 @@ else
         ./craft setup/db-creds --interactive=0 \
         --server=${MYSQL_HOSTNAME:-mysql} --database=${MYSQL_DATABASE} --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --port=${MYSQL_PORT} --driver=mysql --table-prefix=${DATABASE_TABLE_PREFIX}
    fi
+   sudo chmod -R g+w config web storage vendor .env composer.json composer.lock
    sudo chown -R craft:www-data /var/www/html/
 fi
 
