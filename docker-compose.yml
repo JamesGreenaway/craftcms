@@ -6,10 +6,13 @@ services:
       context: .
     restart: unless-stopped
     env_file: .env
+    user: craft
     volumes:
-      - traefik:/tmp/traefik
       - ./craft:/var/www/html/
-      - ./virtualhost.conf:/tmp/virtualhost.conf
+      - ./virtualhost.conf:/etc/apache2/sites-available/000-default.conf
+      - type: bind
+        source: /Users/home/.composer/
+        target: /home/craft/.composer/
     labels:
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=web
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.entrypoints=web-secure
@@ -23,8 +26,5 @@ services:
     networks: 
       - traefik
 networks:
-  traefik:
-    external: true
-volumes:
   traefik:
     external: true
