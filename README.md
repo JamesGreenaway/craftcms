@@ -264,7 +264,7 @@ Once you have created your certificates you will need to inform Traefik where it
     keyFile = "/certs/example-key.pem"
 ```
 
-*Note* hopefully this step will not be necessary in the future when Traefik v2.0 is out of beta.
+*Note*: hopefully this step will not be necessary in the future when Traefik v2.0 is out of beta.
 
 Finally, you will need to restart Traefik by entering: 
 `docker-compose restart traefik`
