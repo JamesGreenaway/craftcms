@@ -68,7 +68,6 @@ else
    sudo chown -R craft:www-data /var/www/html/
 
 fi
-sudo chown root:root /etc/apache2/sites-available/000-default.conf
 
 sudo sh -c "echo 'ServerName ${SITE_URL}' >> /etc/apache2/apache2.conf"
 
