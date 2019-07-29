@@ -1,10 +1,11 @@
 #!/bin/bash
 set -e
 
-# Mounted volume adds directory as root.
+# Change permissions, host mounted volume adds directory as root.
 sudo sh -c "chmod g+s /var/www/html/ && chown craft:www-data /var/www/html/"
 
-# Check if host has bind mounted .composer. Allow user craft to write to it.
+# Check if host has bind mounted to '/home/craft/.composer'. 
+# Avoid permissions issues by giving write access for all. 
 if [ -f /home/craft/.composer/ ]; then 
     sudo chmod -f 777 /home/craft/.composer/
 fi
@@ -45,7 +46,7 @@ else
     if [ ! "$(ls -A /var/www/html/)" ]; then
         echo '- No project found. Creating new instance of CraftCMS...'
 
-# Run Composer as user craft to avoid 'do not run as super-user' warning. 
+# Run Composer as user 'craft' to avoid 'do not run as super-user' warning. 
         composer create-project craftcms/craft /var/www/html/
 
         ./craft setup/security-key
