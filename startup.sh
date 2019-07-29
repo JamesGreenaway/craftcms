@@ -64,7 +64,7 @@ else
 
         setup_mysql_database
 
-        install_craft
+        setup_craft_database
 
 # Manually add site URL to .env file.
         echo -e "\nDEFAULT_SITE_URL=\"https://$SITE_URL\"" >> /var/www/html/.env
