@@ -90,7 +90,7 @@ services:
     env_file: .env
     volumes:
       - ./craft:/var/www/html/
-      - ./virtualhost.conf:/tmp/virtualhost.conf
+      - ./virtualhost.conf:/etc/apache2/sites-available/000-default.conf
       - type: bind
         source: /path/to/local/.composer/
         target: /home/craft/.composer/
