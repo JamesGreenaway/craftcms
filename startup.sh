@@ -65,7 +65,7 @@ else
 
         install_craft
 
-# Manually add site URL to .env file
+# Manually add site URL to .env file.
         echo -e "\nDEFAULT_SITE_URL=\"https://$SITE_URL\"" >> /var/www/html/.env
    fi
    echo '- Setting write permissions for PHP...'
