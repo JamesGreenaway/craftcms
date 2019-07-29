@@ -3,7 +3,7 @@ set -e
 
 sudo sh -c "chmod g+s /var/www/html/ && chown craft:www-data /var/www/html/"
 
-sudo chmod 777 /home/craft/.composer/
+sudo chmod -f 777 /home/craft/.composer/
 
 if [ -d /var/www/html/vendor/ ]; then
     echo '- Craft project already created.'
