@@ -3,11 +3,12 @@ set -e
 
 sudo sh -c "chmod g+s /var/www/html/ && chown craft:www-data /var/www/html/"
 
-sudo chmod -f 777 /home/craft/.composer/
+if [ -f /home/craft/.composer/ ]; then 
+    sudo chmod -f 777 /home/craft/.composer/
+fi
 
 if [ -d /var/www/html/vendor/ ]; then
     echo '- Craft project already created.'
-
 else
     echo '- Checking for existing project...'
 
@@ -41,7 +42,6 @@ else
         --password=${PASSWORD} \
         --site-name=${COMPOSE_PROJECT_NAME} \
         --site-url="https://${SITE_URL}"
-
     else 
         echo '- Existing Craft project found! Installing...'
 
@@ -59,14 +59,12 @@ else
         --table-prefix=${DATABASE_TABLE_PREFIX}
 
         echo -e "\nDEFAULT_SITE_URL=\"https://$SITE_URL\"" >> /var/www/html/.env
-
    fi
    echo '- Setting write permissions for PHP...'
 
    sudo chmod -R g+w config vendor web/cpresources storage .env composer.json composer.lock
 
    sudo chown -R craft:www-data /var/www/html/
-
 fi
 
 sudo sh -c "echo 'ServerName ${SITE_URL}' >> /etc/apache2/apache2.conf"
