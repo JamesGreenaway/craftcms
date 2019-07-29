@@ -16,7 +16,6 @@ RUN apt-get install -y \
 
 # SETUP APACHE
 RUN a2enmod ssl && a2enmod rewrite
-COPY ./config/000-default.conf /etc/apache2/sites-available/
 RUN sed -ri "s!/var/www/!/var/www/html/web!g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 # CREATE USER
@@ -41,7 +40,7 @@ sed -ri "s!max_execution_time = 30!max_execution_time = $MAX_EXECUTION_TIME!" -i
 mv "$PHP_INI_DIR/php.ini-$ENVIRONMENT" "$PHP_INI_DIR/php.ini"
 
 # COPY SCRIPTS
-COPY ./config/startup.sh /usr/local/bin/startup
+COPY ./startup.sh /usr/local/bin/startup
 RUN chmod a+x /usr/local/bin/startup
 
 # CHANGE USER
