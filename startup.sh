@@ -58,7 +58,7 @@ else
         --driver=mysql \
         --table-prefix=${DATABASE_TABLE_PREFIX}
 
-        echo "DEFAULT_SITE_URL=\"https://$SITE_URL\"" >> /var/www/html/.env
+        echo -e "\nDEFAULT_SITE_URL=\"https://$SITE_URL\"" >> /var/www/html/.env
 
    fi
    echo '- Setting write permissions for PHP...'
