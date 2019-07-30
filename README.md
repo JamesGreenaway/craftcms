@@ -132,8 +132,8 @@ We are communicating with Traefik via labels. Labels outline all the dynamic con
 > Needed so that the Craft instance can create database entries. *Note*: Must match the environment variables used in our mysql service.
 * `MYSQL_PASSWORD=password`
 > Needed so that the Craft instance can create database entries. *Note*: Must match the environment variables used in our mysql service.
-* `MYSQL_DATABASE=db`
-> Creates a database using this name. Grants all privileges to `$MYSQL_USER`.
+* `MYSQL_DATABASE=uniqueDatabaseName`
+> Creates a database using this name. Grants all privileges to `$MYSQL_USER`. *Note*: This must be a unique name otherwise the project will link with an exisiting database using that name.
 * `DATABASE_TABLE_PREFIX=craft`
 > *Optional*: Sets the table prefix for the Craft database.  
 * `EMAIL_ADDRESS=test@test.com`
@@ -147,7 +147,7 @@ We are communicating with Traefik via labels. Labels outline all the dynamic con
 * `COMPOSE_PROJECT_NAME=example`
 > *Important*: This variable serves to set the name of the whole project. It is also used to set the name of the certificate file, therefore, it is important to ensure that it matches the same name given to the certificates for this site (see below) and the main ServerName and ServerAlias on your `virtualhost.conf` file. Finally, it is also used in the `docker-compose.yml` file to set the name of the routers and Host rules for Traefik, however, this is done simply as a convenience measure. 
 
-Here is an example file for your reference: 
+Here is an example `.env` file for your reference: 
 ```    
 MYSQL_ROOT_PASSWORD=password
 MYSQL_USER=user
