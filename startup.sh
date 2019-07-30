@@ -39,7 +39,8 @@ else
         --username=${USER_NAME} \
         --password=${PASSWORD} \
         --site-name=${COMPOSE_PROJECT_NAME} \
-        --site-url="https://${SITE_URL}"
+        --site-url="https://${SITE_URL}" \
+        --language=${LANGUAGE}
     }
 
 # Check if there are any files in /var/www/html.
@@ -48,40 +49,29 @@ else
 
 # Run Composer as user 'craft' to avoid 'do not run as super-user' warning. 
         composer create-project craftcms/craft /var/www/html/
-
         ./craft setup/security-key
-
         setup_mysql_database
-        
         setup_craft_database
-        
         install_craft
-
     else 
         echo '- Existing Craft project found! Installing...'
-
         composer update
-
         setup_mysql_database
-
         setup_craft_database
 
 # Manually add site URL to .env file.
         echo -e "\nDEFAULT_SITE_URL=\"https://$SITE_URL\"" >> /var/www/html/.env
    fi
    echo '- Setting write permissions for PHP...'
-
    sudo chmod -R g+w config vendor web/cpresources storage .env composer.json composer.lock
 
 # Give group access to www-data for all files.
    sudo chown -R craft:www-data /var/www/html/
 fi
-
 sudo sh -c "echo 'ServerName ${SITE_URL}' >> /etc/apache2/apache2.conf"
 
 PURPLE='\033[1;35m'
 PARTY_POPPER='🎉'
-
 echo -e "\n- Congratulations ${PARTY_POPPER}  your CraftCMS site ready to go! Please visit: ${PURPLE} https://${SITE_URL}\n"
 
 sudo apache2-foreground
