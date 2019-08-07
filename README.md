@@ -22,32 +22,6 @@ This image is based on "Docker Official Images"; a curated set of Docker reposit
 
 All external network data is routed to our containers via [Traefik](https://hub.docker.com/_/traefik). When used in tandem with [dnsmaq](http://www.thekelleys.org.uk/dnsmasq/doc.html) our containers can respond to requests using a custom domain name of our choosing and exist in in tandem on the same port.
 
-## Contents
-
-* [Quick Start: Running this image on localhost.](##-Quick-Start:-Running-this-image-on-localhost.)
-
-* [How to run multiple sites at the same time without having to change ports.](##-How-to-run-multiple-sites-at-the-same-time-without-having-to-change-ports.)
-
-* [Giving each site its own domain name.](##-Giving-each-site-its-own-domain-name.)
-
-* [Let's add HTTPS.](##-Let's-add-HTTPS.)
-
-* [Other Features](##-Other-Features)
-
-    - [Using a local cache for composer.](###-Using-a-local-cache-for-composer.)
-
-    - [How to migrate an existing project.](###-How-to-migrate-an-existing-project.)
-
-    - [Exporting and importing databases.](###-Exporting-and-importing-databases.)
-
-    - [Building the image with alternative arguments.](###-Building-the-image-with-alternative-arguments.)
-
-* [Reference](##-Reference)
-
-    - [Environment Variables](###-Environment-Variables) 
-
-* [Example Project](##-Example-Project)
-
 ---
 
 ## Quick Start: Running this image on localhost.
