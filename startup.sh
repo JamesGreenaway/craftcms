@@ -78,7 +78,8 @@ sudo sed -ri "s!ServerName!ServerName ${SERVER_NAME}!" /etc/apache2/sites-availa
 sudo sed -ri "s!ServerAlias!ServerAlias www.${SERVER_NAME}!" /etc/apache2/sites-available/000-default.conf
 
 PURPLE='\033[1;35m'
+NO_COLOR='\033[0m'
 PARTY_POPPER='🎉'
-echo -e "\n- Congratulations ${PARTY_POPPER}  your CraftCMS site ready to go! Please visit: ${PURPLE} ${SITE_URL}\n"
+echo -e "\n- Congratulations ${PARTY_POPPER}  your CraftCMS site ready to go! Please visit: ${PURPLE} ${SITE_URL} ${NO_COLOR}\n"
 
 sudo apache2-foreground
