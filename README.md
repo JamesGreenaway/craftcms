@@ -275,11 +275,11 @@ Now we need to update both containers to include this feature. Let's start by ed
 
 ### Using a local cache for composer. 
 
-Installing Craft for each new project can take a while to download. To reduce this time you can add a volume to our `craft` service that will store composer's cache locally on the host machine. Here we are linking it to composers pre-existing cache which is found on our `$HOME` path:
+To help reduce the time it takes to install a new Craft project you can add a volume to our `craft` service that will store Composer's cache locally on the host machine. Here we are linking it to `~/.composer`: 
 
 `- $HOME/.composer:/home/craft/.composer`
 
-*Important*: Please ensure that the file you choose to host Composer's cache has read/write/execute access for all by running `chmod 777 .composer`.
+*Important*: Please ensure that the file you choose to host Composer's cache has read/write/execute access for all users by running `chmod 777 .composer`.
 
 ---
 
@@ -325,7 +325,7 @@ The docker image will run `composer update` to install all the dependencies when
 
 ### Building the image with alternative arguments.
 
-It is also possible to *optionally* build this image with some additional arguments. This can alter some of the lower level settings that are already predetermined when using the default image. You need to reference the Github repository as a context and add the arguments to the `docker-compose.yml` file. For example: 
+It is also possible to build this image with some additional arguments. This can alter some of the lower level settings that are already predetermined when using the default image. You need to reference the Github repository as a context and add the arguments to the `docker-compose.yml` file. For example: 
 
 ```
 services:
@@ -477,5 +477,3 @@ PASSWORD=password
 SITE_URL=https://example.test
 COMPOSE_PROJECT_NAME=example
 ```
-
----
