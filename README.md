@@ -279,6 +279,8 @@ Installing Craft for each new project can take a while to download. To reduce th
 
 `- $HOME/.composer:/home/craft/.composer`
 
+*Important*: Please ensure that the file you choose to host Composer's cache has read/write/execute access for all by running `chmod 777 .composer`.
+
 ---
 
 ### Redirect to HTTPS.
