@@ -1,5 +1,11 @@
 version: "3.7"
 services:
+  mysql: 
+    image: mysql:5.7
+    restart: always
+    volumes:
+      - mysql:/var/lib/mysql
+    env_file: .env
   craft:
     image: craftcms
     build:
@@ -8,22 +14,24 @@ services:
     env_file: .env
     volumes:
       - ./craft:/var/www/html/
-      - ./virtualhost.conf:/etc/apache2/sites-available/000-default.conf
-      - type: bind
-        source: /Users/home/.composer/
-        target: /home/craft/.composer/
+      - $HOME/.composer:/home/craft/.composer
     labels:
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=web
-      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.entrypoints=web-secure
-      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.middlewares=https
-      - traefik.http.middlewares.https.redirectscheme.scheme=https
-      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.tls=true
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(
         `${COMPOSE_PROJECT_NAME}.test`, `www.${COMPOSE_PROJECT_NAME}.test`)
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.tls=true
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.entrypoints=web-secure
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.rule=Host(
         `${COMPOSE_PROJECT_NAME}.test`, `www.${COMPOSE_PROJECT_NAME}.test`)
-    networks: 
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.middlewares=https
+      - traefik.http.middlewares.https.redirectscheme.scheme=https
+    depends_on:
+      - mysql
+    networks:
+      - default 
       - traefik
+volumes: 
+  mysql: {}
 networks:
   traefik:
     external: true
