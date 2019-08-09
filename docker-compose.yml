@@ -5,25 +5,37 @@ services:
     restart: always
     volumes:
       - mysql:/var/lib/mysql
-    env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=exampleDatabase
   craft:
     image: craftcms
     build:
       context: .
     restart: unless-stopped
-    env_file: .env
+    environment: 
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=exampleDatabase
+      - EMAIL_ADDRESS=test@test.com
+      - USER_NAME=admin
+      - PASSWORD=password
+      - SITE_URL=https://example.test
+      - SITE_NAME=example
     volumes:
       - ./craft:/var/www/html/
       - $HOME/.composer:/home/craft/.composer
     labels:
-      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=web
-      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(
-        `${COMPOSE_PROJECT_NAME}.test`, `www.${COMPOSE_PROJECT_NAME}.test`)
-      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.tls=true
-      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.entrypoints=web-secure
-      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.rule=Host(
-        `${COMPOSE_PROJECT_NAME}.test`, `www.${COMPOSE_PROJECT_NAME}.test`)
-      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.middlewares=https
+      - traefik.http.routers.example-craft1.entrypoints=web
+      - traefik.http.routers.example-craft1.rule=Host(
+        `example.test`, `www.example.test`)
+      - traefik.http.routers.example-craft1-secure.tls=true
+      - traefik.http.routers.example-craft1-secure.entrypoints=web-secure
+      - traefik.http.routers.example-craft1-secure.rule=Host(
+        `example.test`, `www.example.test`)
+      - traefik.http.routers.example-craft1.middlewares=https
       - traefik.http.middlewares.https.redirectscheme.scheme=https
     depends_on:
       - mysql
