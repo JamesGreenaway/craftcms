@@ -11,7 +11,7 @@ else
     echo '- Checking for existing project...'
 
     mysql-connect-retry () {
-        while ! mysqladmin ping -u${MYSQL_USER} -h${MYSQL_HOST:-mysql} -p${MYSQL_PASSWORD}; do
+        while ! mysqladmin ping -u${MYSQL_USER} -h${MYSQL_HOST:-mysql} -p${MYSQL_PASSWORD} --silent; do
             echo "- Awaiting response from MySQL..."
             sleep 1
         done
@@ -51,15 +51,15 @@ else
         # Run Composer as user 'craft' to avoid 'do not run as super-user' warning. 
         composer create-project craftcms/craft /var/www/html/
         ./craft setup/security-key
-        setup_mysql_database
         mysql-connect-retry
+        setup_mysql_database
         setup_craft_database
         install_craft
     else 
         echo '- Existing Craft project found! Installing...'
         composer update
-        setup_mysql_database
         mysql-connect-retry
+        setup_mysql_database
         setup_craft_database
         # Manually add data to .env file.
         echo -e "\nSECURITY_KEY=\"$SECURITY_KEY\"" >> /var/www/html/.env
