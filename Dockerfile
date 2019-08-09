@@ -1,4 +1,4 @@
-FROM composer:latest
+FROM composer:1.9.0
 FROM php:7.3-apache-stretch
 RUN apt-get update && apt-get -y upgrade
 
