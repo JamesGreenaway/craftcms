@@ -4,24 +4,12 @@ set -e
 # Change permissions, host mounted volume adds directory as root.
 sudo sh -c "chmod g+s /var/www/html/ && chown craft:www-data /var/www/html/"
 
-# Check if host has bind mounted to '/home/craft/.composer'. 
-# Avoid permissions issues by giving write access for all. 
-if [ -f /home/craft/.composer/ ]; then 
-    sudo chmod -f 777 /home/craft/.composer/
-fi
-
 # Use vendor directory as indication of whether an existing project has been fully installed.
 if [ -d /var/www/html/vendor/ ]; then
     echo '- Craft project already created.'
 else
     echo '- Checking for existing project...'
 
-    setup_mysql_database () {
-        mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE}"
-        mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "GRANT ALL PRIVILEGES ON *.* TO ${MYSQL_USER}@'%'"
-        mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "FLUSH PRIVILEGES"
-    }
-    
     setup_craft_database () {
         ./craft setup/db-creds --interactive=0 \
         --server=${MYSQL_HOSTNAME:-mysql} \
@@ -38,7 +26,7 @@ else
         --email=${EMAIL_ADDRESS} \
         --username=${USER_NAME} \
         --password=${PASSWORD} \
-        --site-name=${COMPOSE_PROJECT_NAME} \
+        --site-name=${SITE_NAME} \
         --site-url=${SITE_URL} \
         --language=${LANGUAGE}
     }
@@ -46,17 +34,14 @@ else
     # Check if there are any files in /var/www/html.
     if [ ! "$(ls -A /var/www/html/)" ]; then
         echo '- No project found. Creating new instance of CraftCMS...'
-
         # Run Composer as user 'craft' to avoid 'do not run as super-user' warning. 
         composer create-project craftcms/craft /var/www/html/
         ./craft setup/security-key
-        setup_mysql_database
         setup_craft_database
         install_craft
     else 
         echo '- Existing Craft project found! Installing...'
         composer update
-        setup_mysql_database
         setup_craft_database
         # Manually add data to .env file.
         echo -e "\nSECURITY_KEY=\"$SECURITY_KEY\"" >> /var/www/html/.env
@@ -65,7 +50,6 @@ else
    fi
    echo '- Setting write permissions for PHP...'
    sudo chmod -R g+w config vendor web/cpresources storage .env composer.json composer.lock
-
    # Give group access to www-data for all files.
    sudo chown -R craft:www-data /var/www/html/
 fi
