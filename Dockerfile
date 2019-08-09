@@ -6,7 +6,7 @@ RUN apt-get update && apt-get -y upgrade
 RUN apt-get install -y \ 
     zlib1g-dev libicu-dev g++ \
     libmagickwand-dev libzip-dev \
-    sudo mysql-client unzip \
+    sudo mysql-client unzip iputils-ping\
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl \
     && docker-php-ext-install zip \
