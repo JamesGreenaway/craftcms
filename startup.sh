@@ -10,6 +10,13 @@ if [ -d /var/www/html/vendor/ ]; then
 else
     echo '- Checking for existing project...'
 
+    mysql-connect-retry () {
+        while ! mysqladmin ping -h"${MYSQL_HOST:-mysql}" --silent; do
+            echo "- Awaiting response from MySQL..."
+            sleep 1
+        done
+    }
+
     setup_craft_database () {
         ./craft setup/db-creds --interactive=0 \
         --server=${MYSQL_HOSTNAME:-mysql} \
@@ -37,11 +44,13 @@ else
         # Run Composer as user 'craft' to avoid 'do not run as super-user' warning. 
         composer create-project craftcms/craft /var/www/html/
         ./craft setup/security-key
+        mysql-connect-retry
         setup_craft_database
         install_craft
     else 
         echo '- Existing Craft project found! Installing...'
         composer update
+        mysql-connect-retry
         setup_craft_database
         # Manually add data to .env file.
         echo -e "\nSECURITY_KEY=\"$SECURITY_KEY\"" >> /var/www/html/.env
