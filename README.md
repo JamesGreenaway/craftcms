@@ -1,6 +1,6 @@
 # A fully extensible development environment for running multiple sites with CraftCMS. 
 
-***Warning:** This project is still being developed! Please keep referring to this README for up-to-date instructions.*
+**Warning:** This project is still being developed! Please keep referring to this README for up-to-date instructions.
 
 ## Description
 
