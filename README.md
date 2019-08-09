@@ -69,7 +69,7 @@ volumes:
 1. Once the installation is complete you can visit: `http://localhost:80` to see your new instance of CraftCMS running. 
 1. Stop your container by running `docker-compose down`.
 
-**Important** that none of the variables for our `mysql` service will have any effect if you start the container with a data directory that already contains a database: any pre-existing database will always be left untouched on container startup. Therefore, if you make a mistake, please make sure that you remove the `mysql` volume first before restarting your container: 
+**Important** None of the variables for our `mysql` service will have any effect if you start the container with a data directory that already contains a database: any pre-existing database will always be left untouched on container startup. Therefore, if you make a mistake, please make sure that you remove the `mysql` volume first before restarting your container: 
 
 `docker volume rm <project_directory_name>_mysql`
 
