@@ -18,9 +18,16 @@ Projects can be run at the same time without worrying about port selection and a
 
 ### How does it work?
 
-This image is based on "Docker Official Images"; a curated set of Docker repositories hosted on Docker Hub. It will install Craft inside a volume whereby the user has access to all its files locally and in their entirety. Craft will link up to the official [MySQL](https://hub.docker.com/_/mysql) image and all database entries will persist locally on the host machine ensuring that no data is lost when containers are stopped. 
+This image is based on "Docker Official Images"; a curated set of Docker repositories hosted on Docker Hub:
 
-All external network data is routed to our containers via [Traefik](https://hub.docker.com/_/traefik). When used in tandem with [dnsmaq](http://www.thekelleys.org.uk/dnsmasq/doc.html) our containers can respond to requests using a custom domain name of our choosing and can run at the same time and on the same ports.
+- [PHP v7.3](https://hub.docker.com/_/php)
+- [Composer 1.9.0](https://hub.docker.com/_/composer)
+- [MySQL 8.0](https://hub.docker.com/_/mysql)
+- [Traefik v2.0-beta1](https://hub.docker.com/_/traefik)
+
+It will install Craft inside a volume whereby the user has access to all its files locally and in their entirety. Craft will link up to MySQL and all database entries will persist locally on the host machine ensuring that no data is lost when containers are stopped. 
+
+All external network data is routed to our containers via Traefik. When used in tandem with [dnsmaq](http://www.thekelleys.org.uk/dnsmasq/doc.html) our containers can respond to requests using a custom domain name of our choosing and can run at the same time and on the same ports.
 
 ---
 
@@ -30,7 +37,7 @@ All external network data is routed to our containers via [Traefik](https://hub.
 version: "3.7"
 services:
   mysql: 
-    image: mysql:5.7
+    image: mysql:8.0
     restart: always
     volumes:
       - mysql:/var/lib/mysql
@@ -38,11 +45,12 @@ services:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_USER=user
       - MYSQL_PASSWORD=password
-      - MYSQL_DATABASE=exampleDatabase
+    command: --default-authentication-plugin=mysql_native_password
   craft:
     image: jamesgreenaway/craftcms:latest
     restart: unless-stopped
     environment: 
+      - MYSQL_ROOT_PASSWORD=password
       - MYSQL_USER=user
       - MYSQL_PASSWORD=password
       - MYSQL_DATABASE=exampleDatabase
@@ -120,6 +128,7 @@ Traefik describes itself is an open-source reverse proxy/load balancer. We can e
       image: jamesgreenaway/craftcms:latest
       restart: unless-stopped
       environment: 
+        - MYSQL_ROOT_PASSWORD=password
         - MYSQL_USER=user
         - MYSQL_PASSWORD=password
         - MYSQL_DATABASE=exampleDatabase
@@ -230,7 +239,6 @@ Once you have created your certificates you will need to inform Traefik of where
   [[tls.certificates]]
     certFile = "/certificates/example-cert.pem"
     keyFile = "/certificates/example-key.pem"
-
 ```
 
 **Important**: Make sure that, for every project, you edit the word `example` to match the environment variable `$SITE_NAME`. 
@@ -445,3 +453,104 @@ You can then run `docker-compose up --build -d` to build and run your container 
 > Sets the project's name on Craft's dashboard.
 * `SECURITY-KEY=<thirty-two-characters>`
 > *Optional*: This should only be used when migrating an exiting project. The value must match the existing project's security key.
+
+## Example Project 
+
+`./traefik/docker-compose.yml`
+
+```
+version: "3.7"
+services:
+  traefik:
+    restart: always
+    image: traefik:v2.0.0-beta1
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./dynamic_conf.toml:/config/dynamic_conf.toml:ro
+      - ./certificates:/certificates:ro
+    command: 
+      --entrypoints.web.address=:80
+      --providers.docker=true 
+      --providers.docker.network=traefik
+      --entrypoints.web-secure.address=:443
+      --providers.file.filename=/config/dynamic_conf.toml
+      --providers.file.watch=true
+    networks:
+      - traefik
+networks:
+  traefik:
+    external: true
+  ```
+
+  `./traefik/dynamic_conf.toml`
+
+  ```
+  [tls]
+  [[tls.certificates]]
+    certFile = "/certificates/example-cert.pem"
+    keyFile = "/certificates/example-key.pem"
+  ```
+
+  `./traefik/certificates/`
+
+  ```
+  ./example-cert.pem
+  ./example-key.pem
+  ```
+
+  `./example/docker-compose.yml`
+
+  ```
+  version: "3.7"
+services:
+  mysql: 
+    image: mysql:8.0
+    restart: always
+    volumes:
+      - mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    command: --default-authentication-plugin=mysql_native_password
+  craft:
+    image: jamesgreenaway/craftcms:latest
+    restart: unless-stopped
+    environment: 
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=exampleDatabase
+      - EMAIL_ADDRESS=test@test.com
+      - USER_NAME=admin
+      - PASSWORD=password
+      - SITE_URL=https://example.test
+      - SITE_NAME=example
+    volumes:
+      - ./craft:/var/www/html/
+      - $HOME/.composer:/home/craft/.composer
+    labels:
+      - traefik.http.routers.example-craft1.entrypoints=web
+      - traefik.http.routers.example-craft1.rule=Host(
+        `example.test`, `www.example.test`)
+      - traefik.http.routers.example-craft1-secure.tls=true
+      - traefik.http.routers.example-craft1-secure.entrypoints=web-secure
+      - traefik.http.routers.example-craft1-secure.rule=Host(
+        `example.test`, `www.example.test`)
+      - traefik.http.routers.example-craft1.middlewares=https
+      - traefik.http.middlewares.https.redirectscheme.scheme=https
+    depends_on:
+      - mysql
+    networks:
+      - default 
+      - traefik
+volumes:
+  mysql: {}
+networks:
+  traefik:
+    external: true
+  ```
+
