@@ -11,10 +11,17 @@ else
     echo '- Checking for existing project...'
 
     mysql-connect-retry () {
-        while ! mysqladmin ping -h"${MYSQL_HOST:-mysql}" --silent; do
+        while ! mysqladmin ping -u${MYSQL_USER} -h${MYSQL_HOST:-mysql} -p${MYSQL_PASSWORD}; do
             echo "- Awaiting response from MySQL..."
             sleep 1
         done
+    }
+
+    setup_mysql_database () {
+        mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE}"
+        mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "GRANT ALL PRIVILEGES ON *.* TO ${MYSQL_USER}@'%'"
+        mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "ALTER USER ${MYSQL_USER}@'%' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PASSWORD}'"
+        mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "FLUSH PRIVILEGES"
     }
 
     setup_craft_database () {
@@ -44,12 +51,14 @@ else
         # Run Composer as user 'craft' to avoid 'do not run as super-user' warning. 
         composer create-project craftcms/craft /var/www/html/
         ./craft setup/security-key
+        setup_mysql_database
         mysql-connect-retry
         setup_craft_database
         install_craft
     else 
         echo '- Existing Craft project found! Installing...'
         composer update
+        setup_mysql_database
         mysql-connect-retry
         setup_craft_database
         # Manually add data to .env file.
