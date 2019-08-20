@@ -435,7 +435,7 @@ You can then run `docker-compose up --build -d` to build and run your container 
 > Needed so that the Craft instance can create database entries.
 * `MYSQL_DATABASE=uniqueDatabaseName`
 > Creates a database using this name. Grants all privileges to `$MYSQL_USER`.
-* `MYSQL_HOST`=mysql`
+* `MYSQL_HOST=mysql`
 > *Optional*: The name of our mysql service acts as its hostname. Change this if you have named your service differently or you are running multiple mysql services. Defaults to `mysql`. 
 * `DATABASE_TABLE_PREFIX=craft`
 > *Optional*: Sets the table prefix for the Craft database.  
