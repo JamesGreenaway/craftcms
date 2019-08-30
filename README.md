@@ -18,12 +18,12 @@ Projects can be run at the same time without worrying about port selection and a
 
 ### How does it work?
 
-This image is based on "Docker Official Images"; a curated set of Docker repositories hosted on Docker Hub:
+This image is primarily based on "Docker Official Images", a regularly maintained and curated set of Docker repositories hosted on [Docker Hub](https://hub.docker.com/):
 
 - [PHP v7.3](https://hub.docker.com/_/php)
 - [Composer 1.9.0](https://hub.docker.com/_/composer)
 - [MySQL 8.0](https://hub.docker.com/_/mysql)
-- [Traefik v2.0-beta1](https://hub.docker.com/_/traefik)
+- [Traefik v2.0-rc1](https://hub.docker.com/_/traefik)
 
 It will install Craft inside a volume whereby the user has access to all its files locally and in their entirety. Craft will link up to MySQL and all database entries will persist locally on the host machine ensuring that no data is lost when containers are stopped. 
 
@@ -64,7 +64,7 @@ services:
     depends_on:
       - mysql
     ports: 
-     - 80:80
+     - 80:5000
 volumes: 
   mysql: {}
 ``` 
@@ -97,11 +97,11 @@ Traefik describes itself is an open-source reverse proxy/load balancer. We can e
     restart: always
     image: traefik:v2.0.0-beta1
     ports:
-      - 80:80
+      - 80:5000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: 
-      --entrypoints.web.address=:80
+      --entrypoints.web.address=:5000
       --providers.docker=true 
       --providers.docker.network=traefik
     networks:
@@ -111,7 +111,7 @@ Traefik describes itself is an open-source reverse proxy/load balancer. We can e
 
 ### How to:
 
-1. Add the above configuration as another service to our `docker-compose.yml` file.  
+1. For now, add the above configuration as another service to our `docker-compose.yml` file. Later we will split these in to separate containers so that we can run multiple sites using one Traefik instance.   
 1. Run `docker network create traefik` to create an external network. 
 1. Add the network to the bottom of the `docker-compose.yml` file: 
 
@@ -143,6 +143,7 @@ Traefik describes itself is an open-source reverse proxy/load balancer. We can e
         - traefik.http.routers.example-craft1.entrypoints=web
         - traefik.http.routers.example-craft1.rule=Host(
           `localhost`)
+        - traefik.http.services.example-craft1.loadbalancer.server.port=5000
       depends_on:
         - mysql
         - traefik
@@ -243,7 +244,7 @@ Once you have created your certificates you will need to inform Traefik of where
 
 **Important**: Make sure that, for every project, you edit the word `example` to match the environment variable `$SITE_NAME`. 
 
-> Hopefully this step will not be necessary in the future when Traefik v2.0 is out of beta. [#5169](https://github.com/containous/traefik/issues/5169)
+> Hopefully this step will not be necessary in the future when Traefik v2.0 is complete. [3#card-24640764](https://github.com/containous/traefik/projects/3#card-24640764)
 
 Now we need to update our containers to include this feature. Let's start by editing our `traefik` service.
 
@@ -266,7 +267,7 @@ Now we need to update our containers to include this feature. Let's start by edi
     --providers.file.watch=true
     ```
 
-1. Now, we need to edit our `docker-compose.yml` file for Craft.  Add the following flags to the `labels` configuration option: 
+1. Now, we need to edit our `craft` service.  Add the following flags to the `labels` configuration option: 
 
     ```
     - traefik.http.routers.example-craft1-secure.tls=true
@@ -291,8 +292,6 @@ Now we need to update our containers to include this feature. Let's start by edi
 
 So now the stage is set to run multiple Craft sites alongside each other. To create a new project all you need to do is add a `docker-compose.yml` file inside a new directory and update it with the details of our new site. 
 
-> Make sure that you remove the `traefik` service and ensure that our `craft` service is no longer dependant on it. 
-
 ### How to: 
 The following options inside our `craft` service **must** be updated to match the name of our new project: 
 
@@ -301,10 +300,10 @@ The following options inside our `craft` service **must** be updated to match th
   * `$SITE_NAME`
 
 - Labels: 
-  * Router name(s)
+  * Router/service name(s)
   * Host rule domain name(s)
 
-**Note**: For the sake of this tutorial, Traefik has been included inside the first `docker-compose.yml` file. It is recommended that the user separate `traefik` and all its ancillary files to their own directory. At the bottom of every `docker-compose.yml` file, there must be a reference to `traefik` as an external network.
+**Note**: For the sake of this tutorial, Traefik has been included inside the first `docker-compose.yml` file. It is recommended that the user separate `traefik` and all its ancillary files to their own directory. Please see the bottom of this README for an example of how to lay out your project.
 
 The last step is to create a new certificate for your project. Follow the steps in the "Let's add HTTPS" section and make sure that you update: 
 
@@ -373,7 +372,7 @@ Furthermore, just like when creating a new project, you must ensure that the fol
   * `$SITE_NAME`
 
 - Labels: 
-  * Router name(s)
+  * Router/service name(s)
   * Host rule domain name(s)
 
 ___
@@ -464,16 +463,16 @@ version: "3.7"
 services:
   traefik:
     restart: always
-    image: traefik:v2.0.0-beta1
+    image: traefik:v2.0.0-rc1
     ports:
-      - 80:80
+      - 80:5000
       - 443:443
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./dynamic_conf.toml:/config/dynamic_conf.toml:ro
       - ./certificates:/certificates:ro
     command: 
-      --entrypoints.web.address=:80
+      --entrypoints.web.address=:5000
       --providers.docker=true 
       --providers.docker.network=traefik
       --entrypoints.web-secure.address=:443
@@ -543,6 +542,7 @@ services:
       - traefik.http.routers.example-craft1.entrypoints=web
       - traefik.http.routers.example-craft1.rule=Host(
         `example.test`, `www.example.test`)
+      - traefik.http.services.example-craft1.loadbalancer.server.port=5000
       - traefik.http.routers.example-craft1-secure.tls=true
       - traefik.http.routers.example-craft1-secure.entrypoints=web-secure
       - traefik.http.routers.example-craft1-secure.rule=Host(
