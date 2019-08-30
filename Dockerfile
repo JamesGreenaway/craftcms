@@ -15,7 +15,8 @@ RUN apt-get install -y \
     && docker-php-ext-install pdo pdo_mysql
 
 # SETUP APACHE
-RUN a2enmod ssl && a2enmod rewrite
+# RUN a2enmod ssl && a2enmod rewrite
+RUN a2enmod rewrite
 RUN sed -ri "s!/var/www/!/var/www/html/web!g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 COPY ./virtualhost.conf /etc/apache2/sites-available/000-default.conf
 
@@ -25,6 +26,8 @@ RUN groupadd -g $LOCAL_UID craft && \
     useradd -rm -s /bin/bash -u $LOCAL_UID -g craft -G sudo craft
 RUN echo "craft ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/craft && \
     chmod 0440 /etc/sudoers.d/craft
+ENV APACHE_RUN_USER craft
+ENV APACHE_RUN_GROUP craft
 
 # INSTALL COMPOSER
 COPY --from=composer /usr/bin/composer /usr/bin/composer
@@ -48,7 +51,8 @@ RUN chmod a+x /usr/local/bin/startup
 USER craft
 
 # RUN STARTUP SCRIPT
-CMD ["startup"]
+ENTRYPOINT ["startup"]
+CMD ["apache2-foreground"]
 
 # EXPOSE PORTS
-EXPOSE 80 443
+EXPOSE 5000
