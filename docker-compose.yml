@@ -38,6 +38,7 @@ services:
         `example.test`, `www.example.test`)
       - traefik.http.routers.example-craft1.middlewares=https
       - traefik.http.middlewares.https.redirectscheme.scheme=https
+      - traefik.http.services.example-craft1.loadbalancer.server.port=5000
     depends_on:
       - mysql
     networks:
