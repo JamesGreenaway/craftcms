@@ -510,7 +510,7 @@ networks:
 
 ```
 
-version: '3.7'
+version: "3.7"
 services:
   mysql: 
     image: mysql:8.0
