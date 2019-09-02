@@ -509,7 +509,6 @@ networks:
 `./example/docker-compose.yml`
 
 ```
-
 version: "3.7"
 services:
   mysql: 
@@ -559,5 +558,4 @@ volumes:
 networks:
   traefik:
     external: true
-
 ```
