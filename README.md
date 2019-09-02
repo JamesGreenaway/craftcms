@@ -22,7 +22,7 @@ This image is primarily based on "Docker Official Images", a regularly maintaine
 
 - [PHP v7.3](https://hub.docker.com/_/php)
 - [Composer 1.9.0](https://hub.docker.com/_/composer)
-- [MySQL 8.0](https://hub.docker.com/_/mysql)
+- [MySQL v8.0](https://hub.docker.com/_/mysql)
 - [Traefik v2.0-rc1](https://hub.docker.com/_/traefik)
 
 It will install Craft inside a volume whereby the user has access to all its files locally and in their entirety. Craft will link up to MySQL and all database entries will persist locally on the host machine ensuring that no data is lost when containers are stopped. 
@@ -95,7 +95,7 @@ Traefik describes itself is an open-source reverse proxy/load balancer. We can e
 ...
   traefik:
     restart: always
-    image: traefik:v2.0.0-beta1
+    image: traefik:v2.0.0-rc1
     ports:
       - 80:5000
     volumes:
@@ -203,7 +203,7 @@ Now we need to update our `craft` service to include its own custom domain name.
     SITE_NAME=example
     ```
 
-1. Next, we need to remove the old craft project and its respective mysql volume so that we can re-install a new Craft project using the new domain names. 
+1. Next, we need to remove the CraftCMS project and its respective mysql volume so that we can re-install a new Craft project using the new domain names. 
     > You could manually change the settings inside the Craft dashboard but, for now, let's just create a new project. *Please see below for a tip that will speed up the installation process by using Composer's cache.*
 
     ```
@@ -290,7 +290,7 @@ Now we need to update our containers to include this feature. Let's start by edi
 
 ## Running multiple Craft sites.
 
-So now the stage is set to run multiple Craft sites alongside each other. To create a new project all you need to do is add a `docker-compose.yml` file inside a new directory and update it with the details of our new site. 
+So now the stage is set to run multiple Craft sites alongside each other. To create a new project all we need to do is copy the example `docker-compose.yml` file inside a new directory and update it with the details of our new site. 
 
 ### How to: 
 The following options inside our `craft` service **must** be updated to match the name of our new project: 
@@ -336,7 +336,7 @@ If you would like your site to always redirect to HTTPS you can add the followin
 - traefik.http.middlewares.https.redirectscheme.scheme=https
 ```
 
-> Please remember to update the name of the router (in this case it's `example`) when starting a new project. 
+> Please remember to update the name of the router (in this case it's `example-craft1`) when starting a new project. 
 
 Now our domain will always redirect back to the HTTPS protocol.
 
@@ -375,7 +375,7 @@ Furthermore, just like when creating a new project, you must ensure that the fol
   * Router/service name(s)
   * Host rule domain name(s)
 
-___
+---
 
 ### Exporting and importing databases.
 
@@ -410,7 +410,7 @@ services:
 
 These are the environment variables that are available to add (if necessary): 
 * LOCAL_UID
-> This is useful to modify if you are using a Linux device to run this image and your UID is not 1000. Editing this argument will edit the user inside your container to match the UID of your local machine. 
+> This is useful to modify if you are using a Linux device to run this image and your UID is not 1000. Editing this argument will edit the UID and GID for the user inside your container to match the UID of your local machine. 
 * PHP_MEMORY_LIMIT
 > The recommended memory limit for Craft is 256M this is already set as a default. Use this variable if you require more memory.  
 * MAX_EXECUTION_TIME
@@ -510,7 +510,7 @@ networks:
 
 ```
 
-version: "3.7"
+version: '3.7'
 services:
   mysql: 
     image: mysql:8.0
@@ -561,4 +561,3 @@ networks:
     external: true
 
 ```
-
