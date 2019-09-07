@@ -9,19 +9,12 @@ if [ -d /var/www/html/vendor/ ]; then
     echo '- Craft project already created.'
 else
     echo '- Checking for existing project...'
-
     mysql_connect_retry () {
-        while ! mysqladmin ping -u${MYSQL_USER} -h${MYSQL_HOST:-mysql} -p${MYSQL_PASSWORD} --silent; do
-            echo "- Awaiting response from MySQL..."
-            sleep 10
-        done
+        mysqladmin ping -u${MYSQL_USER} -h${MYSQL_HOST:-mysql} -p${MYSQL_PASSWORD} --silent --wait
     }
 
     setup_mysql_database () {
-        mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE}"
-        mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "GRANT ALL PRIVILEGES ON *.* TO ${MYSQL_USER}@'%'"
-        mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "ALTER USER ${MYSQL_USER}@'%' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PASSWORD}'"
-        mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "FLUSH PRIVILEGES"
+        mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -h${MYSQL_HOSTNAME:-mysql} -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE}"
     }
 
     setup_craft_database () {
@@ -75,13 +68,7 @@ fi
 export SERVER_NAME=`echo $SITE_URL |  awk -F"/" '{print $3}'` 
 sudo sh -c "echo 'ServerName ${SERVER_NAME}' >> /etc/apache2/apache2.conf"
 # Update Virtual Hosts with server name/alias.
-sudo sed -ri "s!ServerName!ServerName ${SERVER_NAME}!" /etc/apache2/sites-available/000-default.conf
-sudo sed -ri "s!ServerAlias!ServerAlias www.${SERVER_NAME}!" /etc/apache2/sites-available/000-default.conf
 sudo sed -ri "s!Listen 80!Listen 5000!" /etc/apache2/ports.conf
-
-PURPLE='\033[1;35m'
-NO_COLOR='\033[0m'
-PARTY_POPPER='🎉'
-echo -e "\n- Congratulations ${PARTY_POPPER}  your CraftCMS site ready to go! Please visit: ${PURPLE} ${SITE_URL} ${NO_COLOR}\n"
+sudo sed -ri "s!ServerName!ServerName ${SERVER_NAME}!" /etc/apache2/sites-available/000-default.conf
 
 exec "$@"
