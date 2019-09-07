@@ -1,0 +1,24 @@
+version: "3.7"
+services:
+  traefik:
+    restart: always
+    image: traefik:v2.0.0-rc2
+    ports:
+      - 80:5000
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./dynamic_conf.toml:/config/dynamic_conf.toml:ro
+      - ./certificates:/certificates:ro
+    command: 
+      --entrypoints.web.address=:5000
+      --providers.docker=true 
+      --providers.docker.network=traefik
+      --entrypoints.web-secure.address=:443
+      --providers.file.filename=/config/dynamic_conf.toml
+      --providers.file.watch=true
+    networks:
+      - traefik
+networks:
+  traefik:
+    external: true
