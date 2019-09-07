@@ -23,7 +23,7 @@ This image is primarily based on "Docker Official Images", a regularly maintaine
 - [PHP v7.3](https://hub.docker.com/_/php)
 - [Composer 1.9.0](https://hub.docker.com/_/composer)
 - [MySQL v8.0](https://hub.docker.com/_/mysql)
-- [Traefik v2.0-rc1](https://hub.docker.com/_/traefik)
+- [Traefik v2.0-rc2](https://hub.docker.com/_/traefik)
 
 It will install Craft inside a volume whereby the user has access to all its files locally and in their entirety. Craft will link up to MySQL and all database entries will persist locally on the host machine ensuring that no data is lost when containers are stopped. 
 
@@ -42,23 +42,20 @@ services:
     volumes:
       - mysql:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=password
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     command: --default-authentication-plugin=mysql_native_password
   craft:
     image: jamesgreenaway/craftcms:latest
     restart: unless-stopped
     environment: 
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=password
-      - MYSQL_DATABASE=exampleDatabase
-      - EMAIL_ADDRESS=test@test.com
-      - USER_NAME=admin
-      - PASSWORD=password
-      - SITE_URL=http://localhost
-      - SITE_NAME=localhost
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ""
+      MYSQL_DATABASE: ${COMPOSE_PROJECT_NAME}
+      EMAIL_ADDRESS: test@test.com
+      USER_NAME: admin
+      PASSWORD: password
+      SITE_URL: https://${COMPOSE_PROJECT_NAME}.test
+      SITE_NAME: ${COMPOSE_PROJECT_NAME}
     volumes:
       - ./craft:/var/www/html/
     depends_on:
@@ -72,14 +69,13 @@ volumes:
 ### How to:
 
 1. Create a `docker-compose.yml` file using the above configuration. 
+1. Run `echo "COMPOSE_PROJECT_NAME=localhost" > .env`.
 1. Run `docker-compose up -d`. 
 1. Run `docker-compose logs -f craft` to view the Craft installation process. 
 1. Once the installation is complete you can visit: `http://localhost:80` to see your new instance of CraftCMS running. 
 1. Stop your container by running `docker-compose down`.
 
-**Important** None of the variables for our `mysql` service will have any effect if you start the container with a data directory that already contains a database: any pre-existing database will always be left untouched on container startup. Therefore, if you make a mistake, please make sure that you remove the `mysql` volume first before restarting your container: 
-
-`docker volume rm <project_directory_name>_mysql`
+**Important**: We are using `COMPOSE_PROJECT_NAME` as a variable inside our `docker-compose.yml` file to prevent us from needing to update the name of the project for every option. For this example, we have simply created a file called `.env`, however, there are several ways to include this variable. Please see "[Environment variables in Compose](https://docs.docker.com/compose/environment-variables/)" for more information.
 
 ---
 
@@ -95,7 +91,7 @@ Traefik describes itself is an open-source reverse proxy/load balancer. We can e
 ...
   traefik:
     restart: always
-    image: traefik:v2.0.0-rc1
+    image: traefik:v2.0.0-rc2
     ports:
       - 80:5000
     volumes:
@@ -128,22 +124,21 @@ Traefik describes itself is an open-source reverse proxy/load balancer. We can e
       image: jamesgreenaway/craftcms:latest
       restart: unless-stopped
       environment: 
-        - MYSQL_ROOT_PASSWORD=password
-        - MYSQL_USER=user
-        - MYSQL_PASSWORD=password
-        - MYSQL_DATABASE=exampleDatabase
-        - EMAIL_ADDRESS=test@test.com
-        - USER_NAME=admin
-        - PASSWORD=password
-        - SITE_URL=http://localhost
-        - SITE_NAME=localhost
+        MYSQL_USER: root
+        MYSQL_PASSWORD: ""
+        MYSQL_DATABASE: ${COMPOSE_PROJECT_NAME}
+        EMAIL_ADDRESS: test@test.com
+        USER_NAME: admin
+        PASSWORD: password
+        SITE_URL: http://${COMPOSE_PROJECT_NAME}
+        SITE_NAME: ${COMPOSE_PROJECT_NAME}
       volumes:
         - ./craft:/var/www/html/
       labels:
-        - traefik.http.routers.example-craft1.entrypoints=web
-        - traefik.http.routers.example-craft1.rule=Host(
-          `localhost`)
-        - traefik.http.services.example-craft1.loadbalancer.server.port=5000
+        - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1.entrypoints=web
+        - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1.rule=Host(
+          `${COMPOSE_PROJECT_NAME}`)
+        - traefik.http.services.${COMPOSE_PROJECT_NAME}-craft1.loadbalancer.server.port=5000
       depends_on:
         - mysql
         - traefik
@@ -190,11 +185,11 @@ Now we need to update our `craft` service to include its own custom domain name.
 1. Edit the Host rule label inside the `docker-compose.yml` file so that it matches the following configuration:
 
     ```
-    - traefik.http.routers.example-craft1.rule=Host(
-      `example.test`, `www.example.test`)
+    - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1.rule=Host(
+      `${COMPOSE_PROJECT_NAME}.test`, `www.${COMPOSE_PROJECT_NAME}.test`)
     ```
 
-    > **Note**: `www.` was added to our Virtual Host as a ServerAlias at build time. We have, therefore, added it to our Host rule as a subdomain. If you would like to have different services running on other subdomains it is recommended that you add a separate service to your compose file (see the section called "Adding Craft to a subdomain" below for more information on how to achieve this).
+    > **Note**: If you would like to have different services running on other subdomains it is recommended that you add a separate service to your compose file (see the section called "Adding Craft to a subdomain" below for more information on how to achieve this).
 
 1. Change the value of the following environment variables: 
 
@@ -210,6 +205,10 @@ Now we need to update our `craft` service to include its own custom domain name.
     rm -rf ./craft
     docker volume rm <project_directory_name>_mysql
     ```
+
+1. Update the `COMPOSE_PROJECT_NAME` environment variable inside our `.env` file: 
+
+    `COMPOSE_PROJECT_NAME=example`
 
 1. Run `docker-compose up -d` to start our container. 
 1. Once installed you can visit `http://example.test` to see your instance of Craft running.
@@ -230,7 +229,7 @@ Please consult the [mkcert](https://github.com/FiloSottile/mkcert) Github reposi
 To create a certificate, create a folder called `certificates/` and run the following command:
 
 ```
-mkcert -cert-file certificates/example-cert.pem -key-file certificates/example-key.pem "example.test" "*.example.test"
+echo "example" > /dev/null && mkcert -cert-file certificates/$_-cert.pem -key-file certificates/$_-key.pem "$_.test" "*.$_.test"
 ```
 
 Once you have created your certificates you will need to inform Traefik of where it can locate them. Please add a file called `dynamic_conf.toml` and include the following text for each project you create certificates for:
@@ -242,7 +241,7 @@ Once you have created your certificates you will need to inform Traefik of where
     keyFile = "/certificates/example-key.pem"
 ```
 
-**Important**: Make sure that, for every project, you edit the word `example` to match the environment variable `$SITE_NAME`. 
+**Important**: Make sure that, for every project, you edit the word `example` to match the value given to the `COMPOSE_PROJECT_NAME` environment variable. You *must* hard code the value for `COMPOSE_PROJECT_NAME`. 
 
 > Hopefully this step will not be necessary in the future when Traefik v2.0 is complete. [3#card-24640764](https://github.com/containous/traefik/projects/3#card-24640764)
 
@@ -266,19 +265,18 @@ Now we need to update our containers to include this feature. Let's start by edi
     --providers.file.filename=/config/dynamic_conf.toml
     --providers.file.watch=true
     ```
+    > **Important**: You **must** run `docker-compose restart traefik` to update Traefik with new certificates. 
 
 1. Now, we need to edit our `craft` service.  Add the following flags to the `labels` configuration option: 
 
     ```
-    - traefik.http.routers.example-craft1-secure.tls=true
-    - traefik.http.routers.example-craft1-secure.entrypoints=web-secure
-    - traefik.http.routers.example-craft1-secure.rule=Host(
-      `example.test`, `www.example.test`)
+    - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1-secure.tls=true
+    - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1-secure.entrypoints=web-secure
+    - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1-secure.rule=Host(
+      `${COMPOSE_PROJECT_NAME}.test`, `www.${COMPOSE_PROJECT_NAME}.test`)
     ```
 
-1. Finally, update the `$SITE_URL` environment variable to `https://`:
-
-    `SITE_URL=https://example.test`
+1. Finally, update the `$SITE_URL` environment variable from `http://` to `https://`.
 
 1. Run `docker-compose up -d` to run.
 
@@ -293,22 +291,13 @@ Now we need to update our containers to include this feature. Let's start by edi
 So now the stage is set to run multiple Craft sites alongside each other. To create a new project all we need to do is copy the example `docker-compose.yml` file inside a new directory and update it with the details of our new site. 
 
 ### How to: 
-The following options inside our `craft` service **must** be updated to match the name of our new project: 
-
-- Environment variables: 
-  * `$SITE_URL`
-  * `$SITE_NAME`
-
-- Labels: 
-  * Router/service name(s)
-  * Host rule domain name(s)
+Change the value for `COMPOSE_PROJECT_NAME` inside our `.env` file to the name of our new project.
 
 **Note**: For the sake of this tutorial, Traefik has been included inside the first `docker-compose.yml` file. It is recommended that the user separate `traefik` and all its ancillary files to their own directory. Please see the bottom of this README for an example of how to lay out your project.
 
 The last step is to create a new certificate for your project. Follow the steps in the "Let's add HTTPS" section and make sure that you update: 
 
-- the mkcert command with the new domain names.
-- the mkcert command with the new certificate names.
+- the mkcert command with the new project name.
 - the `dynamic_conf.toml` with the location of our new certificates.
 
 **Important**: You **must** run `docker-compose restart traefik` to update Traefik with new certificates. 
@@ -332,11 +321,9 @@ To help reduce the time it takes to install a new Craft project you can add a vo
 If you would like your site to always redirect to HTTPS you can add the following middleware to the `craft` services labels: 
 
 ```
-- traefik.http.routers.example-craft1.middlewares=https
+- traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1.middlewares=https
 - traefik.http.middlewares.https.redirectscheme.scheme=https
 ```
-
-> Please remember to update the name of the router (in this case it's `example-craft1`) when starting a new project. 
 
 Now our domain will always redirect back to the HTTPS protocol.
 
@@ -379,16 +366,16 @@ Furthermore, just like when creating a new project, you must ensure that the fol
 
 ### Exporting and importing databases.
 
-* `docker exec <container-name> sh -c 'exec mysqldump <database> -uroot -p"$MYSQL_ROOT_PASSWORD"' > mysqldump.sql`
+* `docker exec <container-name> sh -c 'exec mysqldump <database> -uroot' > mysqldump.sql`
 > This will take an existing database and dump the contents of the database in a file named mysqldump.sql
 
-* `docker exec -i <container-name> sh -c 'exec mysql <database> -uroot -p"$MYSQL_ROOT_PASSWORD"' < mysqldump.sql`
+* `docker exec <container-name> sh -c 'exec mysql <database> -uroot"' < mysqldump.sql`
 > This will take an existing mysqldump.sql and dump its contents in to a database of your choosing.
 
-* `docker exec <container-name> sh -c 'exec mysqldump <database> -uroot -p"$MYSQL_ROOT_PASSWORD"' | ssh <remote_server> mysql -uroot <database>`
+* `docker exec <container-name> sh -c 'exec mysqldump <database> -uroot' | ssh <remote_server> mysql -uroot <database>`
 > This will take an existing database and dump the contents of the database in to a named database on a remote server
 
-* `ssh <remote_server> mysqldump <database> | docker exec -i <container-name> sh -c 'exec mysql <database> -uroot -p"$MYSQL_ROOT_PASSWORD"'`
+* `ssh <remote_server> mysqldump <database> | docker exec <container-name> sh -c 'exec mysql <database> -uroot'`
 > This will take a existing database on a remote server and dump the contents inside named local database. 
 
 ---
@@ -418,7 +405,7 @@ These are the environment variables that are available to add (if necessary):
 * ENVIRONMENT
 > This image has been created to be environment agnostic, the current default is `development` however, if you need to run this in a production environment you can use `production`. This will set the `php.ini` file so that it is ready for production. 
 
-You can then run `docker-compose up --build -d` to build and run your container with the new argument values. 
+You can then run `docker-compose up -d --build` to build and run your container with the new argument values. 
 
 --- 
 
@@ -426,32 +413,38 @@ You can then run `docker-compose up --build -d` to build and run your container 
 
 ### Environment Variables 
 
-* `MYSQL_ROOT_PASSWORD=password`
-> Needed so that the Craft instance can create database entries.
-* `MYSQL_USER=user`
-> Needed so that the Craft instance can create database entries.
-* `MYSQL_PASSWORD=password`
-> Needed so that the Craft instance can create database entries.
-* `MYSQL_DATABASE=uniqueDatabaseName`
-> Creates a database using this name. Grants all privileges to `$MYSQL_USER`.
-* `MYSQL_HOST=mysql`
-> *Optional*: The name of our mysql service acts as its hostname. Change this if you have named your service differently or you are running multiple mysql services. Defaults to `mysql`. 
-* `DATABASE_TABLE_PREFIX=craft`
-> *Optional*: Sets the table prefix for the Craft database.  
-* `EMAIL_ADDRESS=test@test.com`
-> Sets the email address for Craft dashboard.
-* `USER_NAME=admin`
-> Sets the username for Craft dashboard.
-* `PASSWORD=password`
-> Sets the password for Craft dashboard.
-* `LANGUAGE=en`
-> *Optional*: Sets the system language for Craft dashboard. Defaults to `en-US`. 
-* `SITE_URL=https://example.test`
-> Sets the website name inside Craft and is also used as a basis to set the `ServerName` and `ServerAlias` for Apache's Virtual Hosts.
-* `SITE_NAME=example`
-> Sets the project's name on Craft's dashboard.
-* `SECURITY-KEY=<thirty-two-characters>`
+#### For mysql service:
+* `MYSQL_ALLOW_EMPTY_PASSWORD: "yes"`
+> Run MySQL without the need for a password.
+* `MYSQL_ROOT_PASSWORD: password`
+> Run MySQL with a password.
+*Important*: You must choose either one or the other.
+
+#### For craft service:
+* `MYSQL_USER: root`
+> *Mandatory*: Needed so that the Craft instance can create database entries. 
+* `MYSQL_PASSWORD: password`
+> *Mandatory*: Needed so that the Craft instance can create database entries. Must match `MYSQL_ROOT_PASSWORD` (if used). If `MYSQL_ALLOW_EMPTY_PASSWORD` is used please input: `MYSQL_PASSWORD: ""`
+* `MYSQL_DATABASE: example`
+> *Mandatory*: Creates a database using this name.
+* `EMAIL_ADDRESS: test@test.com`
+> *Mandatory*: Sets the email address for Craft dashboard.
+* `USER_NAME: admin`
+> *Mandatory*: Sets the username for Craft dashboard.
+* `PASSWORD: password`
+> *Mandatory*: Sets the password for Craft dashboard.
+* `SITE_URL: https://example.test`
+> *Mandatory*: Sets the website name inside Craft and is also used as a basis to set the `ServerName` for Apache's Virtual Hosts.
+* `SITE_NAME: example`
+> *Mandatory*: Sets the project's name on Craft's dashboard.
+* `SECURITY-KEY: <thirty-two-characters>`
 > *Optional*: This should only be used when migrating an exiting project. The value must match the existing project's security key.
+* `DATABASE_TABLE_PREFIX: craft`
+> *Optional*: Sets the table prefix for the Craft database.
+* `LANGUAGE: en`
+> *Optional*: Sets the system language for Craft dashboard. Defaults to `en-US`. 
+* `MYSQL_HOST: mysql`
+> *Optional*: The name of our mysql service acts as its hostname. Change this if you have named your service differently or you are running multiple mysql services. Defaults to `mysql`. 
 
 ## Example Project 
 
@@ -462,7 +455,7 @@ version: "3.7"
 services:
   traefik:
     restart: always
-    image: traefik:v2.0.0-rc1
+    image: traefik:v2.0.0-rc2
     ports:
       - 80:5000
       - 443:443
@@ -511,36 +504,33 @@ services:
     volumes:
       - mysql:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=password
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     command: --default-authentication-plugin=mysql_native_password
   craft:
     image: jamesgreenaway/craftcms:latest
     restart: unless-stopped
     environment: 
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=password
-      - MYSQL_DATABASE=exampleDatabase
-      - EMAIL_ADDRESS=test@test.com
-      - USER_NAME=admin
-      - PASSWORD=password
-      - SITE_URL=https://example.test
-      - SITE_NAME=example
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ""
+      MYSQL_DATABASE: ${COMPOSE_PROJECT_NAME}
+      EMAIL_ADDRESS: test@test.com
+      USER_NAME: admin
+      PASSWORD: password
+      SITE_URL: https://${COMPOSE_PROJECT_NAME}.test
+      SITE_NAME: ${COMPOSE_PROJECT_NAME}
     volumes:
       - ./craft:/var/www/html/
       - $HOME/.composer:/home/craft/.composer
     labels:
-      - traefik.http.routers.example-craft1.entrypoints=web
-      - traefik.http.routers.example-craft1.rule=Host(
-        `example.test`, `www.example.test`)
-      - traefik.http.services.example-craft1.loadbalancer.server.port=5000
-      - traefik.http.routers.example-craft1-secure.tls=true
-      - traefik.http.routers.example-craft1-secure.entrypoints=web-secure
-      - traefik.http.routers.example-craft1-secure.rule=Host(
-        `example.test`, `www.example.test`)
-      - traefik.http.routers.example-craft1.middlewares=https
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1.entrypoints=web
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1.rule=Host(
+        `${COMPOSE_PROJECT_NAME}.test`, `www.${COMPOSE_PROJECT_NAME}.test`)
+      - traefik.http.services.${COMPOSE_PROJECT_NAME}-craft1.loadbalancer.server.port=5000
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1-secure.tls=true
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1-secure.entrypoints=web-secure
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1-secure.rule=Host(
+        `${COMPOSE_PROJECT_NAME}.test`, `www.${COMPOSE_PROJECT_NAME}.test`)
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1.middlewares=https
       - traefik.http.middlewares.https.redirectscheme.scheme=https
     depends_on:
       - mysql
