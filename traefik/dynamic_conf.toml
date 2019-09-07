@@ -1,0 +1,4 @@
+[tls]
+  [[tls.certificates]]
+    certFile = "/certificates/example-cert.pem"
+    keyFile = "/certificates/example-key.pem"
