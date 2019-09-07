@@ -15,7 +15,6 @@ RUN apt-get install -y \
     && docker-php-ext-install pdo pdo_mysql
 
 # SETUP APACHE
-# RUN a2enmod ssl && a2enmod rewrite
 RUN a2enmod rewrite
 RUN sed -ri "s!/var/www/!/var/www/html/web!g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 COPY ./virtualhost.conf /etc/apache2/sites-available/000-default.conf
