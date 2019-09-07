@@ -6,39 +6,36 @@ services:
     volumes:
       - mysql:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=password
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     command: --default-authentication-plugin=mysql_native_password
   craft:
-    image: craftcms
+    image: jamesgreenaway/craftcms:latest
     build:
       context: .
     restart: unless-stopped
-    environment: 
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=password
-      - MYSQL_DATABASE=exampleDatabase
-      - EMAIL_ADDRESS=test@test.com
-      - USER_NAME=admin
-      - PASSWORD=password
-      - SITE_URL=https://example.test
-      - SITE_NAME=example
+    environment:
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ""
+      MYSQL_DATABASE: ${COMPOSE_PROJECT_NAME}
+      EMAIL_ADDRESS: test@test.com
+      USER_NAME: admin
+      PASSWORD: password
+      SITE_URL: https://${COMPOSE_PROJECT_NAME}.test
+      SITE_NAME: ${COMPOSE_PROJECT_NAME}
     volumes:
       - ./craft:/var/www/html/
       - $HOME/.composer:/home/craft/.composer
     labels:
-      - traefik.http.routers.example-craft1.entrypoints=web
-      - traefik.http.routers.example-craft1.rule=Host(
-        `example.test`, `www.example.test`)
-      - traefik.http.routers.example-craft1-secure.tls=true
-      - traefik.http.routers.example-craft1-secure.entrypoints=web-secure
-      - traefik.http.routers.example-craft1-secure.rule=Host(
-        `example.test`, `www.example.test`)
-      - traefik.http.routers.example-craft1.middlewares=https
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1.entrypoints=web
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1.rule=Host(
+        `${COMPOSE_PROJECT_NAME}.test`, `www.${COMPOSE_PROJECT_NAME}.test`)
+      - traefik.http.services.${COMPOSE_PROJECT_NAME}-craft1.loadbalancer.server.port=5000
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1-secure.tls=true
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1-secure.entrypoints=web-secure
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1-secure.rule=Host(
+        `${COMPOSE_PROJECT_NAME}.test`, `www.${COMPOSE_PROJECT_NAME}.test`)
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-craft1.middlewares=https
       - traefik.http.middlewares.https.redirectscheme.scheme=https
-      - traefik.http.services.example-craft1.loadbalancer.server.port=5000
     depends_on:
       - mysql
     networks:
