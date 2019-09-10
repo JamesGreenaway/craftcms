@@ -160,13 +160,13 @@ Currently we have one site running on localhost via Traefik, however, to have mu
 
 ### How to:
 
-1. Run `brew install dnsmasq` (macOS) to install dnsmaq. 
+1. Run `sudo brew install dnsmasq` (macOS) to install dnsmaq. 
 1. Tell dnsmaq to look out for any domains that end in `.test`: 
 
     ```
     mkdir -p /etc/resolver
     echo "nameserver 127.0.0.1" | sudo tee -a /etc/resolver/test > /dev/null
-    echo 'address=/.test/127.0.0.1' >> $(brew — prefix)/etc/dnsmasq.conf
+    echo 'address=/.test/127.0.0.1' >> $(brew —-prefix)/etc/dnsmasq.conf
     ```
 
 1. Start dnsmasq as a service so it automatically starts at login `sudo brew services start dnsmasq` (macOS).
