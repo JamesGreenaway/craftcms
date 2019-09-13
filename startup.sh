@@ -50,7 +50,7 @@ else
         install_craft
     else 
         echo '- Existing Craft project found! Installing...'
-        composer update
+        composer install
         mysql_connect_retry
         setup_mysql_database
         setup_craft_database
@@ -58,6 +58,7 @@ else
         echo -e "\nSECURITY_KEY=\"$SECURITY_KEY\"" >> /var/www/html/.env
         echo -e "\nENVIRONMENT=\"dev\"" >> /var/www/html/.env
         echo -e "\nDEFAULT_SITE_URL=\"$SITE_URL\"" >> /var/www/html/.env
+        install_craft
     fi
     echo '- Setting write permissions for PHP files...'
     sudo chmod -R g+w config vendor web/cpresources storage .env composer.json composer.lock
