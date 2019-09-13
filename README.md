@@ -336,7 +336,7 @@ To migrate an existing project clone your repository inside a directory called `
 `SECURITY-KEY=<thirty-two-characters>`
 >The security key **must** match the existing project.
 
-The docker image will run `composer update` to install all the dependencies when it cannot find a `/vendors` directory. Craft's `.env` file will be created for us and auto-populated with our project's environment variables. 
+The docker image will run `composer install` to install all the dependencies when it cannot find a `/vendors` directory. Craft's `.env` file will be created for us and auto-populated with our project's environment variables. 
 
 ---
 
@@ -369,7 +369,7 @@ Furthermore, just like when creating a new project, you must ensure that the fol
 * `docker exec <container-name> sh -c 'exec mysqldump <database> -uroot' > mysqldump.sql`
 > This will take an existing database and dump the contents of the database in a file named mysqldump.sql
 
-* `docker exec <container-name> sh -c 'exec mysql <database> -uroot"' < mysqldump.sql`
+* `docker exec <container-name> sh -c 'exec mysql <database> -uroot' < mysqldump.sql`
 > This will take an existing mysqldump.sql and dump its contents in to a database of your choosing.
 
 * `docker exec <container-name> sh -c 'exec mysqldump <database> -uroot' | ssh <remote_server> mysql -uroot <database>`
