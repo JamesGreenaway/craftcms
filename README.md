@@ -23,7 +23,7 @@ This image is primarily based on "Docker Official Images", a regularly maintaine
 - [PHP v7.3](https://hub.docker.com/_/php)
 - [Composer 1.9.0](https://hub.docker.com/_/composer)
 - [MySQL v8.0](https://hub.docker.com/_/mysql)
-- [Traefik v2.0-rc2](https://hub.docker.com/_/traefik)
+- [Traefik v2.0.0](https://hub.docker.com/_/traefik)
 
 It will install Craft inside a volume whereby the user has access to all its files locally and in their entirety. Craft will link up to MySQL and all database entries will persist locally on the host machine ensuring that no data is lost when containers are stopped. 
 
@@ -91,7 +91,7 @@ Traefik describes itself is an open-source reverse proxy/load balancer. We can e
 ...
   traefik:
     restart: always
-    image: traefik:v2.0.0-rc2
+    image: traefik:v2.0.0
     ports:
       - 80:5000
     volumes:
@@ -455,7 +455,7 @@ version: "3.7"
 services:
   traefik:
     restart: always
-    image: traefik:v2.0.0-rc2
+    image: traefik:v2.0.0
     ports:
       - 80:5000
       - 443:443
