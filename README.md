@@ -333,7 +333,7 @@ Now our domain will always redirect back to the HTTPS protocol.
 
 To migrate an existing project clone your repository inside a directory called `craft` and add the following environment variable to your `craft` service:
 
-`SECURITY-KEY=<thirty-two-characters>`
+`SECURITY-KEY: <thirty-two-characters>`
 >The security key **must** match the existing project.
 
 The docker image will run `composer install` to install all the dependencies when it cannot find a `/vendors` directory. Craft's `.env` file will be created for us and auto-populated with our project's environment variables. 
